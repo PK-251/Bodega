@@ -993,7 +993,11 @@ input, select, button, textarea {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border);
-    overflow: hidden;
+    /* En celular la tabla es más ancha que la pantalla:
+       se desplaza en horizontal en vez de cortarse */
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .data-table {
@@ -1482,15 +1486,6 @@ textarea.form-control {
         font-size: 1.25rem;
     }
 
-    .compras-resumen {
-        grid-template-columns: 1fr;
-    }
-
-    .compra-items-table th,
-    .compra-items-table td {
-        padding: var(--space-sm);
-    }
-
     .data-table {
         font-size: 0.8rem;
     }
@@ -1737,6 +1732,35 @@ textarea.form-control {
     height: 16px;
     cursor: pointer;
     accent-color: var(--primary);
+}
+
+/* Compras en pantalla de celular */
+@media (max-width: 900px) {
+    .compras-resumen {
+        grid-template-columns: 1fr;
+    }
+
+    .modal.modal-lg {
+        max-width: 100%;
+    }
+
+    .compra-items-table th,
+    .compra-items-table td {
+        padding: var(--space-sm) 6px;
+    }
+
+    .compra-items-table th {
+        font-size: 0.65rem;
+    }
+
+    .item-input {
+        padding: 6px 4px;
+        font-size: 0.8rem;
+    }
+
+    .compra-total {
+        font-size: 1.2rem;
+    }
 }
 
 /* ─── Scrollbar personalizado ───────────────── */
