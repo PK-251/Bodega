@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function verificarCajaInicial() {
     try {
         actualizarBadgeCaja(DB.getCajaEstado().abierta);
-    } catch {
+    } catch (e) {
         // Silencioso al inicio
     }
 }

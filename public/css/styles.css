@@ -85,6 +85,7 @@ body {
     color: var(--text);
     line-height: 1.5;
     min-height: 100vh;
+    min-height: 100dvh; /* descuenta la barra del navegador móvil */
     -webkit-font-smoothing: antialiased;
 }
 
@@ -102,9 +103,12 @@ input, select, button, textarea {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 100;
+    padding-left: max(var(--space-lg), env(safe-area-inset-left));
+    padding-right: max(var(--space-lg), env(safe-area-inset-right));
     box-shadow: var(--shadow-sm);
 }
 
@@ -192,6 +196,9 @@ input, select, button, textarea {
 /* ─── Main Layout ───────────────────────────── */
 .app-main {
     padding: var(--space-lg);
+    padding-left: max(var(--space-lg), env(safe-area-inset-left));
+    padding-right: max(var(--space-lg), env(safe-area-inset-right));
+    padding-bottom: max(var(--space-lg), env(safe-area-inset-bottom));
     max-width: 1440px;
     margin: 0 auto;
 }
@@ -384,6 +391,7 @@ input, select, button, textarea {
 /* Resultados de búsqueda */
 .resultados-lista {
     max-height: calc(100vh - 240px);
+    max-height: calc(100dvh - 240px);
     overflow-y: auto;
 }
 
@@ -485,6 +493,7 @@ input, select, button, textarea {
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 88px);
+    max-height: calc(100dvh - 88px);
     position: sticky;
     top: 72px;
 }
@@ -1126,8 +1135,13 @@ input, select, button, textarea {
 /* ─── Modales ───────────────────────────────── */
 .modal-overlay {
     position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     inset: 0;
     background: rgba(15, 23, 42, 0.5);
+    -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -1150,6 +1164,7 @@ input, select, button, textarea {
     width: 100%;
     max-width: 480px;
     max-height: 90vh;
+    max-height: 90dvh;
     overflow-y: auto;
     box-shadow: var(--shadow-lg);
     transform: scale(0.95);
@@ -1301,8 +1316,11 @@ textarea.form-control {
 /* ─── Notificaciones Toast ──────────────────── */
 .toast-container {
     position: fixed;
-    top: 68px;
-    right: var(--space-lg);
+    top: calc(68px + env(safe-area-inset-top));
+    right: max(var(--space-lg), env(safe-area-inset-right));
+    left: max(var(--space-lg), env(safe-area-inset-left));
+    align-items: flex-end;
+    pointer-events: none;
     z-index: 2000;
     display: flex;
     flex-direction: column;
@@ -1634,7 +1652,9 @@ textarea.form-control {
 .compra-items-wrapper {
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     margin-bottom: var(--space-md);
 }
 
@@ -1654,6 +1674,12 @@ textarea.form-control {
     background: var(--bg);
     border-bottom: 1px solid var(--border);
 }
+
+/* Anchos en CSS, no en el HTML: así se ajustan por tamaño */
+.compra-items-table th:nth-child(2) { width: 80px; }
+.compra-items-table th:nth-child(3) { width: 100px; }
+.compra-items-table th:nth-child(4) { width: 90px; }
+.compra-items-table th:nth-child(5) { width: 40px; }
 
 .compra-items-table td {
     padding: var(--space-sm) var(--space-md);
@@ -1761,6 +1787,191 @@ textarea.form-control {
     .compra-total {
         font-size: 1.2rem;
     }
+}
+
+/* ─── Compatibilidad móvil ─────────────────────
+   Pensado para que entre en cualquier teléfono:
+   desde 320px de ancho hasta tablets, en vertical
+   y en horizontal, con o sin notch.
+   ───────────────────────────────────────────── */
+
+/* iOS Safari hace zoom al enfocar un campo de menos
+   de 16px y deja la página descuadrada. */
+@media (max-width: 900px) {
+    .form-control,
+    .item-input,
+    .inventario-search input,
+    .inventario-search select,
+    .search-bar input,
+    .modal input,
+    .modal select,
+    .modal textarea {
+        font-size: 16px;
+    }
+
+    /* Objetivos cómodos para el dedo */
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .nav-tab {
+        min-height: 40px;
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .modal-close {
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+    }
+
+    .table-actions {
+        gap: 6px;
+    }
+}
+
+/* Teléfonos angostos: 360px (Android común) y 320px (iPhone SE) */
+@media (max-width: 400px) {
+    .app-header {
+        padding-left: max(var(--space-md), env(safe-area-inset-left));
+        padding-right: max(var(--space-md), env(safe-area-inset-right));
+        gap: 6px;
+    }
+
+    .app-main {
+        padding: var(--space-md);
+        padding-left: max(var(--space-md), env(safe-area-inset-left));
+        padding-right: max(var(--space-md), env(safe-area-inset-right));
+        padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+    }
+
+    .nav-tab {
+        padding: var(--space-sm);
+    }
+
+    .header-info .caja-badge {
+        font-size: 0.65rem;
+        padding: 3px 7px;
+    }
+
+    /* El encabezado de sección se apila: título arriba, botones abajo */
+    .inventario-header {
+        align-items: stretch;
+    }
+
+    .inventario-actions {
+        width: 100%;
+    }
+
+    .inventario-actions .btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Buscador y filtro, uno debajo del otro */
+    .inventario-search {
+        flex-direction: column;
+    }
+
+    .inventario-search select {
+        width: 100%;
+    }
+
+    .search-bar {
+        padding: var(--space-sm) var(--space-md);
+        flex-wrap: wrap;
+    }
+
+    .shortcut-badge {
+        display: none; /* no hay teclado en el celular */
+    }
+
+    .modal-footer .btn {
+        flex: 1;
+    }
+
+    /* La tabla de ítems tiene que entrar en 320px */
+    .compra-items-table th:nth-child(2) { width: 52px; }
+    .compra-items-table th:nth-child(3) { width: 62px; }
+    .compra-items-table th:nth-child(4) { width: 66px; }
+    .compra-items-table th:nth-child(5) { width: 28px; }
+
+    .compra-items-table th,
+    .compra-items-table td {
+        padding: var(--space-sm) 4px;
+    }
+
+    .compra-items-table .btn-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 0.7rem;
+    }
+
+    .item-input {
+        padding: 6px 2px;
+        font-size: 16px; /* sin zoom en iOS */
+    }
+}
+
+/* Teléfono en horizontal: sobra ancho y falta alto */
+@media (max-height: 520px) and (orientation: landscape) {
+    .modal {
+        max-height: 96vh;
+        max-height: 96dvh;
+    }
+
+    .scanner-container #qr-reader video,
+    .scanner-inline video {
+        max-height: 45vh;
+        max-height: 45dvh;
+    }
+
+    .resultados-lista {
+        max-height: calc(100vh - 150px);
+        max-height: calc(100dvh - 150px);
+    }
+}
+
+/* El visor de la cámara nunca debe desbordar la pantalla */
+.scanner-container #qr-reader,
+.scanner-inline > div {
+    max-width: 100%;
+}
+
+.scanner-container video,
+.scanner-inline video {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+/* Sin teclado físico: los atajos no aplican.
+   Se detecta el dispositivo táctil, no el ancho. */
+@media (hover: none) and (pointer: coarse) {
+    .shortcut-badge,
+    .btn-cobrar .shortcut {
+        display: none;
+    }
+}
+
+/* Sin resaltado azul al tocar en Android/iOS */
+button,
+.nav-tab,
+.resultado-item,
+.compra-resultado {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Palabras largas (nombres de producto) no rompen la caja */
+.prod-nombre,
+.item-nombre,
+.data-table td,
+.stat-value {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
 }
 
 /* ─── Scrollbar personalizado ───────────────── */

@@ -102,6 +102,31 @@ Registra la mercadería que entra a la bodega. Al guardar una compra:
 
 ---
 
+## 📱 Compatibilidad
+
+**Tamaños.** Probado de 320px (iPhone SE) a escritorio, en vertical y en
+horizontal: 320×568, 360×740, 375×812, 430×932 y 667×375 acostado.
+Ninguna sección desborda la pantalla. Las tablas anchas (inventario, compras)
+se deslizan en horizontal con el dedo.
+
+**Detalles táctiles.**
+
+- Los campos usan 16px en celular: por debajo de eso iOS hace zoom al enfocarlos.
+- Botones de ícono de 36px y pestañas de 40px de alto.
+- Los atajos de teclado (F2, F4) se ocultan en pantallas sin mouse.
+- Respeta el área segura del notch y de la barra de gestos.
+- La altura usa `dvh`, así la barra del navegador móvil no corta el contenido.
+
+**Navegadores.** El código evita sintaxis reciente (nada de `?.`, `??` ni
+`catch` sin variable) para no romperse en Android viejos, e incluye los
+prefijos `-webkit-` donde Safari los necesita. Requisito real: un navegador
+con soporte de `async/await` — Chrome 55+, Safari 11+, Firefox 52+, Edge 79+.
+
+> La cámara depende del navegador: en iPhone funciona en Safari (y en Chrome
+> desde iOS 14.3). Siempre necesita HTTPS.
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```

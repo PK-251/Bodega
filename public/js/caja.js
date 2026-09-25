@@ -44,7 +44,7 @@ function cargarResumenVentas() {
         document.getElementById('caja-est-efectivo').textContent = formatMoney(resumen.total_efectivo);
         document.getElementById('caja-est-yape').textContent = formatMoney(resumen.total_yape);
         document.getElementById('caja-est-tarjeta').textContent = formatMoney(resumen.total_tarjeta);
-    } catch { /* Silencioso */ }
+    } catch (e) { /* Silencioso */ }
 }
 
 function cargarMovimientosCaja() {
@@ -86,7 +86,7 @@ function cargarMovimientosCaja() {
                 </div>
             `;
         }).join('');
-    } catch { /* Silencioso */ }
+    } catch (e) { /* Silencioso */ }
 }
 
 // ─── Abrir Caja ────────────────────────────────

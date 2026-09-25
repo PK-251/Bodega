@@ -81,7 +81,7 @@ function cargarCategorias() {
         if (datalist) {
             datalist.innerHTML = categorias.map(c => `<option value="${c}">`).join('');
         }
-    } catch { /* Silencioso */ }
+    } catch (e) { /* Silencioso */ }
 }
 
 // ─── Nuevo producto ────────────────────────────

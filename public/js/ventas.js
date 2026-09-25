@@ -104,7 +104,7 @@ function agregarPorCodigo(codigo) {
         }
         agregarProducto(producto.id, producto.nombre, producto.precio_venta, producto.stock);
         toast(`✅ ${producto.nombre}`, 'success', 1500);
-    } catch {
+    } catch (e) {
         toast('❌ Producto no encontrado', 'error');
     }
 }
@@ -385,7 +385,7 @@ function mostrarRecibo(result) {
 function guardarVentaLocal() {
     try {
         localStorage.setItem('bodega_venta_temp', JSON.stringify(ventaActual));
-    } catch { /* Silencioso */ }
+    } catch (e) { /* Silencioso */ }
 }
 
 function restaurarVentaLocal() {
@@ -399,5 +399,5 @@ function restaurarVentaLocal() {
                 toast('ℹ️ Venta anterior restaurada', 'info');
             }
         }
-    } catch { /* Silencioso */ }
+    } catch (e) { /* Silencioso */ }
 }

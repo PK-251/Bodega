@@ -21,7 +21,7 @@ const DB = {
     get(key) {
         try {
             return JSON.parse(localStorage.getItem(this.KEYS[key]) || '[]');
-        } catch { return []; }
+        } catch (e) { return []; }
     },
 
     // ─── Escribir colección ────────────────────
@@ -40,7 +40,7 @@ const DB = {
     // ─── Obtener siguiente ID autoincremental ──
     nextId(coleccion) {
         let seqs = {};
-        try { seqs = JSON.parse(localStorage.getItem(this.KEYS.secuencias) || '{}'); } catch {}
+        try { seqs = JSON.parse(localStorage.getItem(this.KEYS.secuencias) || '{}'); } catch (e) {}
         seqs[coleccion] = (seqs[coleccion] || 0) + 1;
         localStorage.setItem(this.KEYS.secuencias, JSON.stringify(seqs));
         return seqs[coleccion];
@@ -273,7 +273,7 @@ const DB = {
                 saldo_sistema: 0,
                 efectivo_en_caja: 0
             };
-        } catch { return { abierta: false, apertura: null, saldo_sistema: 0, efectivo_en_caja: 0 }; }
+        } catch (e) { return { abierta: false, apertura: null, saldo_sistema: 0, efectivo_en_caja: 0 }; }
     },
 
     setCajaEstado(estado) {
@@ -636,7 +636,7 @@ const DB = {
                     unidad: unidad || 'UND'
                 });
                 insertados++;
-            } catch {
+            } catch (e) {
                 omitidos++;
             }
         }

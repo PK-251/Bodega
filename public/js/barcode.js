@@ -209,7 +209,7 @@ function crearScannerCamara({ readerId, containerId, btnId, closeId, onScan,
             try {
                 await scanner.stop();
                 scanner.clear();
-            } catch {
+            } catch (e) {
                 // Ignorar errores al cerrar
             }
         }
