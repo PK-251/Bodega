@@ -1,0 +1,16 @@
+{
+  "name": "bodega-pos",
+  "version": "1.0.0",
+  "description": "Sistema POS y Control de Inventario para Bodega - Régimen NRUS Perú",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "https": "node server/server-https.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "lowdb": "^7.0.0"
+  }
+}

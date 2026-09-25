@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Punto de Venta para Bodega - Régimen NRUS Perú">
+    <title>Bodega POS</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<!-- ═══ HEADER ════════════════════════════════ -->
+<header class="app-header">
+    <div class="app-logo">
+        <span class="logo-icon">🏪</span>
+        <span>Bodega POS</span>
+    </div>
+
+    <nav class="nav-tabs" id="nav-tabs">
+        <button class="nav-tab active" data-section="ventas">
+            <span class="tab-icon">🛒</span>
+            <span class="tab-text">Ventas</span>
+        </button>
+        <button class="nav-tab" data-section="inventario">
+            <span class="tab-icon">📦</span>
+            <span class="tab-text">Inventario</span>
+        </button>
+        <button class="nav-tab" data-section="compras">
+            <span class="tab-icon">📥</span>
+            <span class="tab-text">Compras</span>
+        </button>
+        <button class="nav-tab" data-section="caja">
+            <span class="tab-icon">💰</span>
+            <span class="tab-text">Caja</span>
+        </button>
+    </nav>
+
+    <div class="header-info">
+        <span class="caja-badge cerrada" id="caja-status-badge">
+            <span>●</span> Caja cerrada
+        </span>
+        <span class="header-clock" id="header-clock"></span>
+    </div>
+</header>
+
+<!-- ═══ MAIN CONTENT ══════════════════════════ -->
+<main class="app-main">
+
+    <!-- ─── VENTAS ──────────────────────────── -->
+    <section class="section active" id="section-ventas">
+        <div class="ventas-grid">
+
+            <!-- Panel Búsqueda -->
+            <div class="panel-busqueda">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text"
+                           id="input-buscar"
+                           placeholder="Buscar producto por nombre o código..."
+                           autocomplete="off">
+                    <span class="shortcut-badge" id="shortcut-f4">F4</span>
+                    <button class="btn-scanner" id="btn-scanner">
+                        📷 Cámara
+                    </button>
+                </div>
+
+                <div class="scanner-container" id="scanner-container">
+                    <button class="scanner-close" id="btn-scanner-close">✕</button>
+                    <div id="qr-reader"></div>
+                </div>
+
+                <div class="resultados-lista" id="resultados-lista">
+                    <div class="resultados-empty">
+                        <div class="empty-icon">📋</div>
+                        <p>Busca un producto o escanea un código de barras</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Venta Actual -->
+            <div class="panel-venta">
+                <div class="panel-venta-header">
+                    <h2>
+                        🧾 Venta Actual
+                        <span class="items-count" id="items-count">0</span>
+                    </h2>
+                    <button class="btn-vaciar" id="btn-vaciar" title="Vaciar lista (Esc)">
+                        🗑 Vaciar
+                    </button>
+                </div>
+
+                <div class="venta-items" id="venta-items">
+                    <div class="venta-empty" id="venta-empty">
+                        <div class="empty-cart-icon">🛒</div>
+                        <p>Agrega productos para iniciar una venta</p>
+                    </div>
+                </div>
+
+                <div class="venta-footer">
+                    <div class="total-row">
+                        <span class="total-label">Total a cobrar</span>
+                        <span class="total-amount" id="total-amount">S/ 0.00</span>
+                    </div>
+
+                    <div class="pago-section">
+                        <!-- Tipo Comprobante -->
+                        <div class="pago-row">
+                            <div style="flex:1">
+                                <label>Comprobante</label>
+                                <div class="tipo-comprobante-group" id="tipo-comprobante">
+                                    <button class="tipo-comprobante-btn active" data-tipo="TICKET">
+                                        Ticket Simple
+                                    </button>
+                                    <button class="tipo-comprobante-btn" data-tipo="BOLETA">
+                                        Boleta de Venta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Método de Pago -->
+                        <div class="pago-row">
+                            <div style="flex:1">
+                                <label>Método de Pago</label>
+                                <div class="metodo-pago-group" id="metodo-pago">
+                                    <button class="metodo-pago-btn active" data-metodo="EFECTIVO">
+                                        <span class="mp-icon">💵</span>
+                                        Efectivo
+                                    </button>
+                                    <button class="metodo-pago-btn" data-metodo="YAPE_PLIN">
+                                        <span class="mp-icon">📱</span>
+                                        Yape/Plin
+                                    </button>
+                                    <button class="metodo-pago-btn" data-metodo="TARJETA">
+                                        <span class="mp-icon">💳</span>
+                                        Tarjeta
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculadora de Vuelto -->
+                        <div class="vuelto-section visible" id="vuelto-section">
+                            <div class="vuelto-input-row">
+                                <label>Paga con S/</label>
+                                <input type="number"
+                                       id="input-paga-con"
+                                       placeholder="0.00"
+                                       min="0"
+                                       step="0.10">
+                            </div>
+                            <div class="vuelto-rapido" id="vuelto-rapido">
+                                <button class="vuelto-rapido-btn exact" data-monto="exact">Exacto</button>
+                                <button class="vuelto-rapido-btn" data-monto="5">S/ 5</button>
+                                <button class="vuelto-rapido-btn" data-monto="10">S/ 10</button>
+                                <button class="vuelto-rapido-btn" data-monto="20">S/ 20</button>
+                                <button class="vuelto-rapido-btn" data-monto="50">S/ 50</button>
+                                <button class="vuelto-rapido-btn" data-monto="100">S/ 100</button>
+                            </div>
+                            <div class="vuelto-display">
+                                <span class="vuelto-label">Vuelto</span>
+                                <span class="vuelto-amount" id="vuelto-amount">S/ 0.00</span>
+                            </div>
+                        </div>
+
+                        <!-- Botón Cobrar -->
+                        <button class="btn-cobrar" id="btn-cobrar" disabled>
+                            ✅ Cobrar
+                            <span class="shortcut">(F2)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── INVENTARIO ──────────────────────── -->
+    <section class="section" id="section-inventario">
+        <div class="inventario-header">
+            <h2>📦 Inventario de Productos</h2>
+            <div class="inventario-actions">
+                <button class="btn btn-outline" id="btn-csv-upload">
+                    📄 Cargar CSV
+                </button>
+                <button class="btn btn-primary" id="btn-nuevo-producto">
+                    ＋ Nuevo Producto
+                </button>
+            </div>
+        </div>
+
+        <div class="inventario-search">
+            <input type="text"
+                   id="inv-buscar"
+                   placeholder="Buscar en inventario..."
+                   autocomplete="off">
+            <select id="inv-categoria">
+                <option value="">Todas las categorías</option>
+            </select>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Precio</th>
+                        <th>Stock</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="inv-tabla-body">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ─── COMPRAS ─────────────────────────── -->
+    <section class="section" id="section-compras">
+        <div class="inventario-header">
+            <h2>📥 Gestión de Compras</h2>
+            <div class="inventario-actions">
+                <button class="btn btn-primary" id="btn-nueva-compra">
+                    ＋ Nueva Compra
+                </button>
+            </div>
+        </div>
+
+        <div class="compras-resumen">
+            <div class="resumen-card">
+                <span class="resumen-label">Compras de hoy</span>
+                <span class="resumen-valor" id="compras-hoy-total">S/ 0.00</span>
+                <span class="resumen-detalle" id="compras-hoy-cantidad">0 compras</span>
+            </div>
+            <div class="resumen-card">
+                <span class="resumen-label">Pagado en efectivo hoy</span>
+                <span class="resumen-valor negative" id="compras-hoy-efectivo">S/ 0.00</span>
+                <span class="resumen-detalle">Sale de la caja</span>
+            </div>
+            <div class="resumen-card alerta" id="card-pendientes">
+                <span class="resumen-label">Por pagar (crédito)</span>
+                <span class="resumen-valor" id="compras-pend-total">S/ 0.00</span>
+                <span class="resumen-detalle" id="compras-pend-cantidad">0 compras</span>
+            </div>
+        </div>
+
+        <div class="inventario-search">
+            <input type="text"
+                   id="compras-buscar"
+                   placeholder="Buscar por proveedor, N° de compra o documento..."
+                   autocomplete="off">
+            <select id="compras-estado">
+                <option value="">Todas</option>
+                <option value="PENDIENTE">Por pagar</option>
+                <option value="PAGADA">Pagadas</option>
+                <option value="ANULADA">Anuladas</option>
+            </select>
+        </div>
+
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>N° / Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Documento</th>
+                        <th>Ítems</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="compras-tabla-body">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ─── CAJA ────────────────────────────── -->
+    <section class="section" id="section-caja">
+        <div class="inventario-header">
+            <h2>💰 Gestión de Caja</h2>
+            <div class="inventario-actions">
+                <button class="btn btn-success" id="btn-abrir-caja">
+                    🔓 Abrir Caja
+                </button>
+                <button class="btn btn-outline" id="btn-mov-caja">
+                    ＋ Ingreso / Egreso
+                </button>
+                <button class="btn btn-danger" id="btn-cerrar-caja">
+                    🔒 Cerrar Caja
+                </button>
+            </div>
+        </div>
+
+        <div class="caja-grid">
+            <!-- Estado actual -->
+            <div class="caja-card">
+                <h3>📊 Estado de Caja</h3>
+                <div id="caja-estado-content">
+                    <div class="stat-row">
+                        <span class="stat-label">Estado</span>
+                        <span class="stat-value" id="caja-est-estado">—</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Saldo Inicial</span>
+                        <span class="stat-value" id="caja-est-apertura">S/ 0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Ventas Efectivo</span>
+                        <span class="stat-value positive" id="caja-est-efectivo">S/ 0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Ventas Yape/Plin</span>
+                        <span class="stat-value positive" id="caja-est-yape">S/ 0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Ventas Tarjeta</span>
+                        <span class="stat-value positive" id="caja-est-tarjeta">S/ 0.00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Saldo en Sistema</span>
+                        <span class="stat-value positive" id="caja-est-saldo" style="font-size:1.1rem">S/ 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movimientos del día -->
+            <div class="caja-card">
+                <h3>📝 Movimientos del Día</h3>
+                <div id="caja-movimientos" style="max-height:400px; overflow-y:auto">
+                    <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:2rem 0">
+                        No hay movimientos registrados
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- ═══ MODALES ════════════════════════════════ -->
+
+<!-- Modal: Producto (Crear/Editar) -->
+<div class="modal-overlay" id="modal-producto">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modal-producto-titulo">Nuevo Producto</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-producto')">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="prod-edit-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Código de Barras</label>
+                    <div class="input-scan-group">
+                        <input type="text" class="form-control" id="prod-codigo" placeholder="Escanear o ingresar" inputmode="numeric" autocomplete="off">
+                        <button type="button" class="btn-scanner btn-scanner-inline" id="btn-scan-prod" title="Escanear con la cámara">
+                            📷
+                        </button>
+                    </div>
+                    <p class="scanner-hint">Escáner USB: dispara el código y presiona Enter.</p>
+                </div>
+                <div class="form-group">
+                    <label>Unidad</label>
+                    <select class="form-control" id="prod-unidad">
+                        <option value="UND">Unidad</option>
+                        <option value="KG">Kilogramo</option>
+                        <option value="LT">Litro</option>
+                        <option value="PAQ">Paquete</option>
+                        <option value="DOC">Docena</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="scanner-inline" id="scanner-prod-container">
+                <button type="button" class="scanner-close" id="btn-scan-prod-close">✕</button>
+                <div id="qr-reader-prod"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre del Producto *</label>
+                <input type="text" class="form-control" id="prod-nombre" placeholder="Ej: Inca Kola 500ml" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Precio de Venta (S/) *</label>
+                    <input type="number" class="form-control" id="prod-precio-venta" step="0.10" min="0" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Precio de Compra (S/)</label>
+                    <input type="number" class="form-control" id="prod-precio-compra" step="0.10" min="0" placeholder="0.00">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Stock Actual</label>
+                    <input type="number" class="form-control" id="prod-stock" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Stock Mínimo</label>
+                    <input type="number" class="form-control" id="prod-stock-min" min="0" value="5">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <input type="text" class="form-control" id="prod-categoria" placeholder="Ej: Bebidas, Abarrotes..." list="categorias-list">
+                <datalist id="categorias-list"></datalist>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-producto')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-guardar-producto">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nueva Compra -->
+<div class="modal-overlay" id="modal-compra">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3>📥 Nueva Compra</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-compra')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Proveedor *</label>
+                    <input type="text" class="form-control" id="compra-proveedor" placeholder="Ej: Distribuidora San Miguel" list="proveedores-list" autocomplete="off">
+                    <datalist id="proveedores-list"></datalist>
+                </div>
+                <div class="form-group">
+                    <label>Fecha del documento</label>
+                    <input type="date" class="form-control" id="compra-fecha-doc">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tipo de Documento</label>
+                    <select class="form-control" id="compra-doc-tipo">
+                        <option value="SIN_DOC">Sin documento</option>
+                        <option value="FACTURA">Factura</option>
+                        <option value="BOLETA">Boleta</option>
+                        <option value="GUIA">Guía de remisión</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>N° de Documento</label>
+                    <input type="text" class="form-control" id="compra-doc-numero" placeholder="Ej: F001-1234" autocomplete="off">
+                </div>
+            </div>
+
+            <!-- Buscador de productos -->
+            <div class="form-group">
+                <label>Agregar Productos</label>
+                <div class="input-scan-group">
+                    <input type="text"
+                           class="form-control"
+                           id="compra-buscar-producto"
+                           placeholder="Buscar por nombre o escanear código..."
+                           autocomplete="off">
+                    <button type="button" class="btn-scanner btn-scanner-inline" id="btn-scan-compra" title="Escanear con la cámara">
+                        📷
+                    </button>
+                </div>
+                <div class="compra-resultados" id="compra-resultados"></div>
+            </div>
+
+            <div class="scanner-inline" id="scanner-compra-container">
+                <button type="button" class="scanner-close" id="btn-scan-compra-close">✕</button>
+                <div id="qr-reader-compra"></div>
+            </div>
+
+            <!-- Ítems de la compra -->
+            <div class="compra-items-wrapper">
+                <table class="compra-items-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th style="width:80px">Cant.</th>
+                            <th style="width:100px">Costo S/</th>
+                            <th style="width:90px">Subtotal</th>
+                            <th style="width:40px"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="compra-items-body">
+                    </tbody>
+                </table>
+                <div class="compra-items-empty" id="compra-items-empty">
+                    Escanea o busca productos para agregarlos a la compra
+                </div>
+            </div>
+
+            <div class="compra-total-row">
+                <span>Total de la compra</span>
+                <span class="compra-total" id="compra-total">S/ 0.00</span>
+            </div>
+
+            <!-- Condición de pago -->
+            <div class="form-group">
+                <label>Condición de Pago</label>
+                <div class="tipo-comprobante-group" id="compra-condicion">
+                    <button type="button" class="tipo-comprobante-btn active" data-condicion="CONTADO">
+                        Contado
+                    </button>
+                    <button type="button" class="tipo-comprobante-btn" data-condicion="CREDITO">
+                        Al crédito
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group" id="compra-metodo-group">
+                <label>Método de Pago</label>
+                <div class="metodo-pago-group" id="compra-metodo">
+                    <button type="button" class="metodo-pago-btn active" data-metodo="EFECTIVO">
+                        <span class="mp-icon">💵</span>
+                        Efectivo
+                    </button>
+                    <button type="button" class="metodo-pago-btn" data-metodo="YAPE_PLIN">
+                        <span class="mp-icon">📱</span>
+                        Yape/Plin
+                    </button>
+                    <button type="button" class="metodo-pago-btn" data-metodo="TRANSFERENCIA">
+                        <span class="mp-icon">🏦</span>
+                        Transferencia
+                    </button>
+                </div>
+            </div>
+
+            <label class="check-row">
+                <input type="checkbox" id="compra-actualizar-costo" checked>
+                <span>Actualizar el precio de compra de los productos con estos costos</span>
+            </label>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-compra')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-guardar-compra">Registrar Compra</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Detalle de Compra -->
+<div class="modal-overlay" id="modal-compra-detalle">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="compra-detalle-titulo">Detalle de Compra</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-compra-detalle')">✕</button>
+        </div>
+        <div class="modal-body" id="compra-detalle-body">
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-compra-detalle')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Pagar Compra -->
+<div class="modal-overlay" id="modal-pagar-compra">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>💵 Registrar Pago</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-pagar-compra')">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="pago-compra-id">
+            <div class="stat-row">
+                <span class="stat-label" id="pago-compra-proveedor">—</span>
+                <span class="stat-value negative" id="pago-compra-total">S/ 0.00</span>
+            </div>
+            <div class="form-group" style="margin-top:var(--space-lg)">
+                <label>Método de Pago</label>
+                <div class="metodo-pago-group" id="pago-metodo">
+                    <button type="button" class="metodo-pago-btn active" data-metodo="EFECTIVO">
+                        <span class="mp-icon">💵</span>
+                        Efectivo
+                    </button>
+                    <button type="button" class="metodo-pago-btn" data-metodo="YAPE_PLIN">
+                        <span class="mp-icon">📱</span>
+                        Yape/Plin
+                    </button>
+                    <button type="button" class="metodo-pago-btn" data-metodo="TRANSFERENCIA">
+                        <span class="mp-icon">🏦</span>
+                        Transferencia
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-pagar-compra')">Cancelar</button>
+            <button class="btn btn-success" id="btn-confirmar-pago">Confirmar Pago</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Anular Compra -->
+<div class="modal-overlay" id="modal-anular-compra">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>⚠️ Anular Compra</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-anular-compra')">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="anular-compra-id">
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:var(--space-md)">
+                Se descontará del stock la mercadería ingresada y, si la compra ya estaba pagada,
+                el dinero volverá a la caja.
+            </p>
+            <div class="form-group">
+                <label>Motivo de Anulación *</label>
+                <textarea class="form-control" id="anular-compra-motivo" placeholder="Ej: mercadería devuelta al proveedor..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-anular-compra')">Cancelar</button>
+            <button class="btn btn-danger" id="btn-confirmar-anular-compra">Anular Compra</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Carga CSV -->
+<div class="modal-overlay" id="modal-csv">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>📄 Carga Masiva de Productos (CSV)</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-csv')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="csv-upload-area" id="csv-upload-area">
+                <div class="upload-icon">📁</div>
+                <p>Haz clic para seleccionar un archivo CSV</p>
+                <p class="csv-format">codigo_barras, nombre, precio_venta, precio_compra, stock, categoria, unidad</p>
+                <input type="file" id="csv-file-input" accept=".csv" style="display:none">
+            </div>
+            <div id="csv-resultado" style="display:none"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-csv')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Abrir Caja -->
+<div class="modal-overlay" id="modal-abrir-caja">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🔓 Abrir Caja</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-abrir-caja')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Monto Inicial en Efectivo (S/)</label>
+                <input type="number" class="form-control" id="caja-monto-inicial" value="100" min="0" step="10">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-abrir-caja')">Cancelar</button>
+            <button class="btn btn-success" id="btn-confirmar-abrir">Abrir Caja</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Movimiento de Caja -->
+<div class="modal-overlay" id="modal-mov-caja">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>＋ Ingreso / Egreso de Caja</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-mov-caja')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="form-control" id="mov-tipo">
+                    <option value="INGRESO">Ingreso</option>
+                    <option value="EGRESO">Egreso</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Monto (S/)</label>
+                <input type="number" class="form-control" id="mov-monto" min="0.10" step="0.10" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" class="form-control" id="mov-descripcion" placeholder="Ej: Compra de bolsas, cambio de sencillo...">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-mov-caja')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-confirmar-mov">Registrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cerrar Caja -->
+<div class="modal-overlay" id="modal-cerrar-caja">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>🔒 Cerrar Caja (Arqueo)</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-cerrar-caja')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Efectivo Contado en Caja (S/)</label>
+                <input type="number" class="form-control" id="cierre-efectivo" min="0" step="1" placeholder="Contar el dinero en caja">
+            </div>
+            <div class="form-group">
+                <label>Observaciones (opcional)</label>
+                <textarea class="form-control" id="cierre-obs" placeholder="Alguna novedad..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-cerrar-caja')">Cancelar</button>
+            <button class="btn btn-danger" id="btn-confirmar-cierre">Cerrar Caja</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Venta Completada -->
+<div class="modal-overlay" id="modal-venta-ok">
+    <div class="modal">
+        <div class="modal-body">
+            <div class="recibo-exito">
+                <div class="check-icon">✓</div>
+                <div class="recibo-numero" id="recibo-numero"></div>
+                <div class="recibo-total" id="recibo-total"></div>
+                <div class="recibo-detalle" id="recibo-detalle"></div>
+            </div>
+        </div>
+        <div class="modal-footer" style="justify-content:center">
+            <button class="btn btn-primary" onclick="cerrarModal('modal-venta-ok')" style="min-width:160px">
+                Aceptar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Anular Venta -->
+<div class="modal-overlay" id="modal-anular">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>⚠️ Anular Venta</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-anular')">✕</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="anular-venta-id">
+            <div class="form-group">
+                <label>Motivo de Anulación *</label>
+                <textarea class="form-control" id="anular-motivo" placeholder="Indique el motivo..." required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-anular')">Cancelar</button>
+            <button class="btn btn-danger" id="btn-confirmar-anular">Anular Venta</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ NOTIFICACIONES ════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══ BANNER OFFLINE ════════════════════════ -->
+<div class="offline-banner" id="offline-banner" style="display:none">
+    ⚠️ Sin conexión al servidor — La venta actual se guarda localmente
+</div>
+
+<!-- ═══ SCRIPTS ═══════════════════════════════ -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+<script src="js/barcode.js"></script>
+<script src="js/ventas.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/compras.js"></script>
+<script src="js/caja.js"></script>
+</body>
+</html>

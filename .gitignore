@@ -1,0 +1,20 @@
+# Dependencias
+node_modules/
+
+# Base de datos local (se regenera al iniciar)
+data/*.json
+
+# Certificados SSL (nunca subir claves privadas)
+server/ssl/*.pem
+server/ssl/*.key
+server/ssl/*.crt
+
+# Logs y temporales
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/launch.json
