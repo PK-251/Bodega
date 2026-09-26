@@ -55,10 +55,11 @@ if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
     console.error('');
     console.error('❌ No se encontraron los certificados SSL.');
     console.error('');
-    console.error('   Genera un certificado autofirmado ejecutando:');
+    console.error('   Géneralos con:');
     console.error('');
-    console.error('   cd server/ssl');
-    console.error('   openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=bodega-pos"');
+    console.error('   npm run cert');
+    console.error('');
+    console.error('   (usa mkcert: el celular deja de mostrar advertencias)');
     console.error('');
     process.exit(1);
 }
@@ -78,8 +79,8 @@ https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
     console.log('│                                         │');
     console.log('│  📱 Cámara habilitada para celulares    │');
     console.log('│                                         │');
-    console.log('│  NOTA: En el celular, aceptar el        │');
-    console.log('│  certificado autofirmado la primera vez │');
+    console.log('│  Si el celular avisa del certificado,   │');
+    console.log('│  instala server/ssl/bodega-CA.crt       │');
     console.log('└─────────────────────────────────────────┘');
     console.log('');
 });

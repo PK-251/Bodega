@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "node --watch server/server.js",
-    "https": "node server/server-https.js"
+    "https": "node server/server-https.js",
+    "cert": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generar-certificados.ps1"
   },
   "dependencies": {
     "cors": "^2.8.5",

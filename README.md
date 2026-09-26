@@ -22,57 +22,57 @@ El sistema se abre en: **http://localhost:3000**
 
 ---
 
-## 📱 Acceso desde Celulares (Cámara / Escáner)
+## 📱 Acceso desde el Celular (Cámara / Escáner)
 
-Los navegadores móviles requieren **HTTPS** para acceder a la cámara.
+Los navegadores exigen **HTTPS** para dar acceso a la cámara. Se usa
+**mkcert**, que crea una autoridad certificadora propia: instalándola una
+sola vez en el celular, Chrome deja de mostrar advertencias para siempre.
 
-### Paso 1: Generar certificado SSL autofirmado
+### Paso 1: Instalar mkcert (una sola vez en la PC)
 
 ```bash
-# Instalar OpenSSL (si no lo tienes)
-winget install OpenSSL
-
-# Generar certificado (en la carpeta server/ssl/)
-cd server/ssl
-openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=bodega-pos"
+winget install FiloSottile.mkcert
 ```
 
-### Paso 2: Iniciar en modo HTTPS
+Cierra y vuelve a abrir la terminal para que quede en el PATH.
+
+### Paso 2: Generar los certificados
+
+```bash
+npm run cert
+```
+
+El script detecta la IP de la PC en la red Wi-Fi, genera el certificado
+para esa IP y deja la autoridad lista en `server/ssl/bodega-CA.crt`.
+
+> Este paso ejecuta `mkcert -install`, que agrega una autoridad certificadora
+> **local** al almacén de confianza de Windows. Vive solo en esta PC y sirve
+> para firmar certificados de desarrollo. Para quitarla: `mkcert -uninstall`.
+
+### Paso 3: Instalar la autoridad en el celular (una sola vez)
+
+1. Pasa `server/ssl/bodega-CA.crt` al celular (cable, WhatsApp a ti mismo, Drive...).
+2. **Ajustes → Seguridad → Cifrado y credenciales → Instalar un certificado
+   → Certificado de CA** y elige el archivo.
+3. Android pide el PIN del teléfono y avisa que la red podría ser monitoreada.
+   Es el aviso estándar para cualquier CA agregada a mano; esta la generaste tú
+   y su clave privada no sale de tu PC.
+
+> El menú cambia de nombre según la marca: busca *"Instalar certificado"*
+> o *"Credenciales"* dentro de Seguridad.
+
+### Paso 4: Usarlo
 
 ```bash
 npm run https
 ```
 
-### Paso 3: Acceder desde el celular
+Con el celular en la **misma red Wi-Fi**, abre `https://<IP-DE-TU-PC>:3443`
+— el script te imprime la dirección exacta al terminar.
 
-1. Conectar el celular a la **misma red Wi-Fi**.
-2. Abrir en el navegador: `https://<IP-DE-TU-PC>:3443`
-3. Aceptar la advertencia del certificado autofirmado.
-
-> **Tip:** Para ver la IP de tu PC, ejecuta `ipconfig` en la terminal y busca la dirección IPv4.
-
----
-
-## 📷 Lector de Código de Barras
-
-Funciona en **dos lugares** y con **dos métodos**:
-
-| Dónde | Escáner USB (PC) | Cámara (celular) |
-|---|---|---|
-| **Ventas** | Dispara el código: el producto se agrega al carrito | Botón `📷 Cámara` junto al buscador |
-| **Nuevo / Editar Producto** | Dispara el código sobre el campo *Código de Barras* | Botón `📷` junto al campo |
-| **Nueva Compra** | Dispara el código: el producto entra a la compra | Botón `📷` junto al buscador |
-
-Al escanear dentro del formulario de producto:
-
-- El código se escribe en el campo y el foco salta al **nombre**.
-- Si el código **ya pertenece a otro producto**, el sistema lo avisa y ofrece
-  abrir ese producto para editarlo (útil para reponer stock escaneando).
-- La cámara se apaga sola al capturar un código o al cerrar la ventana.
-  En **compras** se queda abierta para escanear varios productos seguidos.
-
-> El botón de cámara solo aparece en celular o cuando el sistema corre en HTTPS,
-> porque los navegadores no dan acceso a la cámara sin conexión segura.
+> Si el router le cambia la IP a la PC, vuelve a correr `npm run cert`: el
+> certificado va atado a esa IP. Para evitarlo, reserva la IP de la PC en el
+> router (DHCP estático).
 
 ---
 
@@ -128,10 +128,10 @@ Firefox 52+ — cualquier Android que reciba actualizaciones lo cumple.
 
 1. Levantar el sistema con `npm run https` (ver la sección de acceso desde celulares).
 2. En el celular, entrar a `https://<IP-de-la-PC>:3443`.
-3. Chrome avisa *"La conexión no es privada"* porque el certificado es propio:
-   **Configuración avanzada → Acceder al sitio**. Hay que hacerlo cada vez que
-   se reinicia el navegador.
-4. Al tocar el botón 📷 por primera vez, Chrome pide permiso de cámara: **Permitir**.
+3. Al tocar el botón 📷 por primera vez, Chrome pide permiso de cámara: **Permitir**.
+
+Con la autoridad de mkcert instalada en el celular no aparece ninguna
+advertencia de certificado.
 
 > Sin HTTPS el botón de cámara avisa y no hace nada: los navegadores no dan
 > acceso a la cámara en conexiones sin cifrar. El escáner USB en la PC no
@@ -165,7 +165,9 @@ bodega-pos/
 │       ├── inventario.js    # Módulo de inventario
 │       ├── compras.js       # Módulo de compras a proveedores
 │       └── caja.js          # Módulo de caja
-├── data/                    # Base de datos SQLite (auto-generado)
+├── scripts/
+│   └── generar-certificados.ps1  # Certificados HTTPS con mkcert
+├── data/                    # Base de datos local (auto-generado)
 ├── package.json
 └── README.md
 ```
