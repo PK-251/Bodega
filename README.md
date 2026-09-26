@@ -104,26 +104,38 @@ Registra la mercadería que entra a la bodega. Al guardar una compra:
 
 ## 📱 Compatibilidad
 
-**Tamaños.** Probado de 320px (iPhone SE) a escritorio, en vertical y en
-horizontal: 320×568, 360×740, 375×812, 430×932 y 667×375 acostado.
-Ninguna sección desborda la pantalla. Las tablas anchas (inventario, compras)
-se deslizan en horizontal con el dedo.
+Pensado para **PC con Windows + celular Android**, que es el equipo de la bodega.
+
+**Tamaños.** Probado de 320px a escritorio, en vertical y en horizontal:
+320×568, 360×740 (Android común), 430×932 y 667×375 acostado. Ninguna
+sección desborda la pantalla. Las tablas anchas (inventario, compras) se
+deslizan en horizontal con el dedo.
 
 **Detalles táctiles.**
 
-- Los campos usan 16px en celular: por debajo de eso iOS hace zoom al enfocarlos.
+- Campos de 16px en celular: cómodos para el dedo y sin zoom automático.
 - Botones de ícono de 36px y pestañas de 40px de alto.
 - Los atajos de teclado (F2, F4) se ocultan en pantallas sin mouse.
-- Respeta el área segura del notch y de la barra de gestos.
-- La altura usa `dvh`, así la barra del navegador móvil no corta el contenido.
+- La altura usa `dvh`, así la barra del navegador no corta el contenido.
+- Vibración corta al escanear un código (funciona en Android).
 
 **Navegadores.** El código evita sintaxis reciente (nada de `?.`, `??` ni
-`catch` sin variable) para no romperse en Android viejos, e incluye los
-prefijos `-webkit-` donde Safari los necesita. Requisito real: un navegador
-con soporte de `async/await` — Chrome 55+, Safari 11+, Firefox 52+, Edge 79+.
+`catch` sin variable) para no romperse en Android antiguos: un error de
+parseo dejaría la app en blanco. Piso real: Chrome 55+, Edge 79+,
+Firefox 52+ — cualquier Android que reciba actualizaciones lo cumple.
 
-> La cámara depende del navegador: en iPhone funciona en Safari (y en Chrome
-> desde iOS 14.3). Siempre necesita HTTPS.
+### Cámara en el Android
+
+1. Levantar el sistema con `npm run https` (ver la sección de acceso desde celulares).
+2. En el celular, entrar a `https://<IP-de-la-PC>:3443`.
+3. Chrome avisa *"La conexión no es privada"* porque el certificado es propio:
+   **Configuración avanzada → Acceder al sitio**. Hay que hacerlo cada vez que
+   se reinicia el navegador.
+4. Al tocar el botón 📷 por primera vez, Chrome pide permiso de cámara: **Permitir**.
+
+> Sin HTTPS el botón de cámara avisa y no hace nada: los navegadores no dan
+> acceso a la cámara en conexiones sin cifrar. El escáner USB en la PC no
+> necesita nada de esto.
 
 ---
 
