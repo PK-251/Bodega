@@ -40,26 +40,39 @@ if (-not $mkcert) {
 }
 Escribir "✓ mkcert encontrado: $($mkcert.Source)" Green
 
-# ─── 2. Detectar la IP de red local ───────────
-# Se toma la interfaz que tiene salida a internet: así se
-# descartan las virtuales de Docker, Hyper-V, VPN, etc.
+# ─── 2. Detectar las IP de red local ─────
+# Se incluyen TODAS las direcciones reales de la PC (puede tener
+# Wi-Fi y cable a la vez), descartando las virtuales de Docker,
+# Hyper-V, VPN y las de enlace local 169.254.
+$virtuales = 'vEthernet|Hyper-V|VirtualBox|VMware|Docker|WSL|Loopback|Bluetooth'
+
+$ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
+         Where-Object {
+             $_.IPAddress -notlike '127.*' -and
+             $_.IPAddress -notlike '169.254.*' -and
+             $_.InterfaceAlias -notmatch $virtuales
+         } |
+         Select-Object -ExpandProperty IPAddress -Unique)
+
+if ($ips.Count -eq 0) {
+    Escribir "❌ No se pudo detectar ninguna IP de red local." Red
+    Escribir "   Conéctate al Wi-Fi o al cable y vuelve a intentarlo." Yellow
+    exit 1
+}
+
+# La de la interfaz con salida a internet es la que se muestra al final
 $ruta = Get-NetRoute -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue |
         Sort-Object RouteMetric |
         Select-Object -First 1
-
-$ip = $null
+$ipPrincipal = $ips[0]
 if ($ruta) {
-    $ip = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $ruta.InterfaceIndex -ErrorAction SilentlyContinue |
-           Where-Object { $_.IPAddress -notlike '169.254.*' } |
-           Select-Object -First 1).IPAddress
+    $candidata = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $ruta.InterfaceIndex -ErrorAction SilentlyContinue |
+                  Where-Object { $_.IPAddress -notlike '169.254.*' } |
+                  Select-Object -First 1).IPAddress
+    if ($candidata) { $ipPrincipal = $candidata }
 }
 
-if (-not $ip) {
-    Escribir "❌ No se pudo detectar la IP de la red local." Red
-    Escribir "   Conéctate al Wi-Fi y vuelve a intentarlo." Yellow
-    exit 1
-}
-Escribir "✓ IP de esta PC en la red: $ip" Green
+Escribir ("✓ IP de esta PC en la red: " + ($ips -join ', ')) Green
 
 # ─── 3. Instalar la autoridad local ───────────
 Escribir ""
@@ -77,11 +90,13 @@ $sslDir = Join-Path $raiz 'server\ssl'
 New-Item -ItemType Directory -Force -Path $sslDir | Out-Null
 
 Escribir ""
-Escribir "→ Generando certificado para localhost, 127.0.0.1 y $ip ..." Cyan
+Escribir ("→ Generando certificado para localhost y " + ($ips -join ', ') + " ...") Cyan
+
+$nombres = @('localhost', '127.0.0.1', '::1') + $ips
 
 Push-Location $sslDir
 try {
-    & mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1 $ip
+    & mkcert -key-file key.pem -cert-file cert.pem @nombres
     if ($LASTEXITCODE -ne 0) { throw "mkcert no pudo generar el certificado" }
 } finally {
     Pop-Location
@@ -115,10 +130,14 @@ Escribir ""
 Escribir "  3. En la PC:  npm run https"
 Escribir ""
 Escribir "  4. En el celular, con el mismo Wi-Fi, abre:"
-Escribir "     https://$ip`:3443" Green
+Escribir "     https://$ipPrincipal`:3443" Green
 Escribir ""
 Escribir "  Ya no debería aparecer ninguna advertencia." DarkGray
 Escribir ""
+if ($ips.Count -gt 1) {
+    Escribir ("  También sirve cualquiera de estas: " + ($ips -join ', ')) DarkGray
+    Escribir ""
+}
 Escribir "  Si el router le cambia la IP a la PC, vuelve a correr" DarkGray
 Escribir "  'npm run cert' (el certificado va atado a la IP)." DarkGray
 Escribir ""

@@ -42,8 +42,9 @@ Cierra y vuelve a abrir la terminal para que quede en el PATH.
 npm run cert
 ```
 
-El script detecta la IP de la PC en la red Wi-Fi, genera el certificado
-para esa IP y deja la autoridad lista en `server/ssl/bodega-CA.crt`.
+El script detecta **todas** las IP reales de la PC (Wi-Fi y cable, descartando
+las virtuales de Docker y Hyper-V), genera un certificado válido para todas y
+deja la autoridad lista en `server/ssl/bodega-CA.crt`.
 
 > Este paso ejecuta `mkcert -install`, que agrega una autoridad certificadora
 > **local** al almacén de confianza de Windows. Vive solo en esta PC y sirve
