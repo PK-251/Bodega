@@ -1789,6 +1789,42 @@ textarea.form-control {
     }
 }
 
+/* ─── Enviar comprobante por WhatsApp ────── */
+.enviar-whatsapp {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+}
+
+.enviar-whatsapp label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.btn-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 18px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background var(--transition);
+}
+
+.btn-whatsapp:hover {
+    background: #1da851;
+}
+
 /* ─── Compatibilidad móvil ─────────────────────
    Pensado para que entre en cualquier teléfono:
    desde 320px de ancho hasta tablets, en vertical

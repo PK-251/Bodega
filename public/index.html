@@ -729,6 +729,24 @@
                 <div class="recibo-total" id="recibo-total"></div>
                 <div class="recibo-detalle" id="recibo-detalle"></div>
             </div>
+
+            <div class="enviar-whatsapp">
+                <label>Enviar el comprobante por WhatsApp</label>
+                <div class="input-scan-group">
+                    <input type="tel"
+                           class="form-control"
+                           id="recibo-telefono"
+                           placeholder="987 654 321"
+                           inputmode="numeric"
+                           autocomplete="off">
+                    <button type="button" class="btn-whatsapp" id="btn-enviar-whatsapp" title="Abrir WhatsApp con el comprobante">
+                        Enviar
+                    </button>
+                </div>
+                <p class="scanner-hint">
+                    Sin número, abre WhatsApp para que elijas el contacto.
+                </p>
+            </div>
         </div>
         <div class="modal-footer" style="justify-content:center">
             <button class="btn btn-primary" onclick="cerrarModal('modal-venta-ok')" style="min-width:160px">

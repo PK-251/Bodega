@@ -405,7 +405,11 @@ function realizarCobro() {
     }
 }
 
+let ultimaVenta = null;
+
 function mostrarRecibo(result) {
+    ultimaVenta = result;
+    document.getElementById('recibo-telefono').value = '';
     document.getElementById('recibo-numero').textContent = result.numero_comprobante;
     document.getElementById('recibo-total').textContent = formatMoney(result.total);
 
@@ -429,6 +433,93 @@ function mostrarRecibo(result) {
 
     document.getElementById('recibo-detalle').innerHTML = detalleHTML;
     abrirModal('modal-venta-ok');
+}
+
+// ─── Enviar el comprobante por WhatsApp ──────
+// Se abre WhatsApp con el mensaje ya escrito; el envío lo
+// confirma la persona. No existe forma de mandarlo solo sin
+// contratar la API de WhatsApp Business.
+
+document.getElementById('btn-enviar-whatsapp').addEventListener('click', enviarComprobanteWhatsApp);
+
+document.getElementById('recibo-telefono').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        enviarComprobanteWhatsApp();
+    }
+});
+
+function enviarComprobanteWhatsApp() {
+    if (!ultimaVenta) return;
+
+    const telefono = normalizarTelefono(document.getElementById('recibo-telefono').value);
+    if (telefono === null) {
+        toast('⚠️ Número inválido. Usa 9 dígitos: 987654321', 'warning', 4000);
+        document.getElementById('recibo-telefono').focus();
+        return;
+    }
+
+    const texto = encodeURIComponent(textoComprobante(ultimaVenta));
+    // Sin número, WhatsApp pide elegir el contacto
+    const url = telefono
+        ? `https://wa.me/${telefono}?text=${texto}`
+        : `https://wa.me/?text=${texto}`;
+
+    window.open(url, '_blank');
+}
+
+// Devuelve el número listo para wa.me, '' si no se escribió
+// ninguno, o null si lo escrito no sirve.
+function normalizarTelefono(valor) {
+    const digitos = (valor || '').replace(/\D/g, '');
+    if (!digitos) return '';
+
+    // Celular peruano: 9 dígitos empezando en 9
+    if (digitos.length === 9 && digitos.charAt(0) === '9') return '51' + digitos;
+
+    // Ya trae el código de país
+    if (digitos.length === 11 && digitos.indexOf('51') === 0) return digitos;
+
+    // Otro país: se acepta tal cual si tiene largo razonable
+    if (digitos.length >= 10 && digitos.length <= 15) return digitos;
+
+    return null;
+}
+
+function textoComprobante(venta) {
+    const fecha = new Date(venta.fecha).toLocaleString('es-PE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+
+    const tipo = venta.tipo_comprobante === 'BOLETA' ? 'Boleta de Venta' : 'Ticket';
+    const metodos = { EFECTIVO: 'Efectivo', YAPE_PLIN: 'Yape/Plin', TARJETA: 'Tarjeta' };
+
+    // WhatsApp entiende *negrita* y los saltos de línea tal cual
+    const lineas = [
+        `*${APP.negocio}*`,
+        `${tipo} ${venta.numero_comprobante}`,
+        fecha,
+        ''
+    ];
+
+    venta.items.forEach(i => {
+        lineas.push(`${i.cantidad} x ${i.nombre} — ${formatMoney(i.precio_unitario * i.cantidad)}`);
+    });
+
+    lineas.push('');
+    lineas.push(`*TOTAL: ${formatMoney(venta.total)}*`);
+    lineas.push(`Pago: ${metodos[venta.metodo_pago] || venta.metodo_pago}`);
+
+    if (venta.metodo_pago === 'EFECTIVO' && venta.vuelto > 0) {
+        lineas.push(`Pagó con: ${formatMoney(venta.monto_pagado)}`);
+        lineas.push(`Vuelto: ${formatMoney(venta.vuelto)}`);
+    }
+
+    lineas.push('');
+    lineas.push('¡Gracias por su compra!');
+
+    return lineas.join(String.fromCharCode(10));
 }
 
 // ─── LocalStorage: Contingencia ────────────────

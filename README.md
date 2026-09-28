@@ -116,6 +116,43 @@ de espera entre lecturas repetidas del mismo código.
 
 ---
 
+## 💬 Enviar el Comprobante por WhatsApp
+
+Al terminar una venta, el comprobante trae un campo para mandarlo al cliente.
+Escribe el celular (9 dígitos, se le agrega el +51 solo) y **Enviar**: se abre
+WhatsApp con el mensaje ya escrito.
+
+```
+*Mi Bodega*
+Ticket T001-2609-000001
+27/09/2026, 10:10 p. m.
+
+1 x Inca Kola 500ml — S/ 3.00
+2 x Galletas Oreo Paq. — S/ 7.00
+
+*TOTAL: S/ 10.00*
+Pago: Efectivo
+Pagó con: S/ 20.00
+Vuelto: S/ 10.00
+
+¡Gracias por su compra!
+```
+
+Sin número, abre WhatsApp para que elijas el contacto de la lista.
+
+> **El envío lo confirma la persona.** WhatsApp abre el chat con el texto
+> listo y hay que darle a enviar. Mandarlo solo, sin intervención, exige
+> contratar la API de WhatsApp Business con un proveedor y plantillas
+> aprobadas — no se puede desde una web.
+
+> Va como **texto**, no como PDF ni imagen: los enlaces de WhatsApp no
+> permiten adjuntar archivos.
+
+El nombre del negocio sale de `APP.negocio`, al inicio de `public/js/app.js`.
+Cámbialo por el de tu bodega.
+
+---
+
 ## 📥 Gestión de Compras
 
 Registra la mercadería que entra a la bodega. Al guardar una compra:

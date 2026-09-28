@@ -8,6 +8,9 @@
 // ─── Estado Global ─────────────────────────────
 const APP = {
     BASE_URL: window.location.origin,
+    // Nombre que encabeza el comprobante enviado por WhatsApp.
+    // Cámbialo por el de tu bodega.
+    negocio: 'Mi Bodega',
     cajaAbierta: false,
     currentSection: 'ventas'
 };
