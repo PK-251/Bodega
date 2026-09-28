@@ -128,13 +128,18 @@ function camaraDisponible() {
         toast('⚠️ Librería de cámara no disponible', 'warning');
         return false;
     }
-    // La cámara requiere contexto seguro (HTTPS) salvo en localhost
-    if (location.protocol !== 'https:' &&
-        location.hostname !== 'localhost' &&
-        location.hostname !== '127.0.0.1') {
-        toast('⚠️ Se necesita HTTPS para usar la cámara. Usa: npm run https', 'warning', 5000);
+    // La cámara solo funciona en contexto seguro: HTTPS o localhost.
+    // Lo decide el navegador, no hace falta adivinarlo por el protocolo.
+    if (!window.isSecureContext) {
+        toast('⚠️ Se necesita HTTPS para usar la cámara. En la PC: npm run cert y npm run https', 'warning', 6000);
         return false;
     }
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast('⚠️ Este navegador no da acceso a la cámara', 'warning', 5000);
+        return false;
+    }
+
     return true;
 }
 

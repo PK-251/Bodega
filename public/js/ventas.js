@@ -22,6 +22,56 @@ inputBuscar.addEventListener('input', (e) => {
     }, 200);
 });
 
+// El escáner USB escribe el código en el buscador y termina
+// con Enter. También vale teclear un nombre y confirmar.
+inputBuscar.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+
+    // El escáner pudo empezar a disparar antes de que el campo
+    // tomara el foco: esa primera parte quedó en el buffer.
+    const texto = (tomarBufferPendiente() + inputBuscar.value).trim();
+    if (!texto) return;
+
+    agregarDesdeBuscador(texto);
+});
+
+function agregarDesdeBuscador(texto) {
+    // 1) Código de barras exacto: el caso del escáner
+    const porCodigo = DB.getProductoPorCodigo(texto);
+    if (porCodigo) {
+        agregarProducto(porCodigo.id, porCodigo.nombre, porCodigo.precio_venta, porCodigo.stock);
+        toast(`✅ ${porCodigo.nombre}`, 'success', 1500);
+        limpiarBuscador();
+        return;
+    }
+
+    // 2) Un solo resultado por nombre: lo agregamos sin hacer clic
+    const coincidencias = DB.getProductos(texto);
+    if (coincidencias.length === 1) {
+        const p = coincidencias[0];
+        agregarProducto(p.id, p.nombre, p.precio_venta, p.stock);
+        toast(`✅ ${p.nombre}`, 'success', 1500);
+        limpiarBuscador();
+        return;
+    }
+
+    if (coincidencias.length === 0) {
+        toast('❌ Producto no encontrado', 'error');
+        return;
+    }
+
+    // 3) Varias opciones: que elija de la lista
+    toast(`${coincidencias.length} coincidencias — elige de la lista`, 'info', 2000);
+}
+
+// Deja el buscador listo para el siguiente escaneo
+function limpiarBuscador() {
+    inputBuscar.value = '';
+    buscarProductos('');
+    inputBuscar.focus();
+}
+
 function buscarProductos(query) {
     const container = document.getElementById('resultados-lista');
     try {

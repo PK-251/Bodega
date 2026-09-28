@@ -211,7 +211,10 @@ function esMobile() {
 // Solo tienen sentido en móvil o con HTTPS, y se
 // reevalúan al rotar o redimensionar la ventana.
 function actualizarBotonesCamara() {
-    const mostrar = esMobile() || location.protocol === 'https:';
+    // Visible donde la cámara puede funcionar (HTTPS o localhost),
+    // y también en celular aunque falte HTTPS: así el botón explica
+    // qué falta en vez de desaparecer sin motivo.
+    const mostrar = window.isSecureContext || esMobile();
     document.querySelectorAll('.btn-scanner').forEach(btn => {
         btn.classList.toggle('visible', mostrar);
     });
