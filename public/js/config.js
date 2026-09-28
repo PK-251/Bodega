@@ -290,6 +290,84 @@ function dibujarQr(img, recorte) {
     return canvas.toDataURL('image/png');
 }
 
+
+// ─── Copia de seguridad ────────────────────────
+// Sirve para llevar los datos a otro equipo, o a la
+// misma app abierta por otra dirección: el navegador
+// guarda un almacén distinto para cada una.
+
+function renderResumenDatos() {
+    const r = DB.resumenDatos();
+    document.getElementById('cfg-resumen-datos').textContent =
+        `Ahora mismo aquí: ${r.productos} productos, ${r.ventas} ventas, ${r.compras} compras.`;
+}
+
+document.getElementById('btn-descargar-copia').addEventListener('click', () => {
+    try {
+        const datos = DB.exportarDatos();
+        const nombreArchivo = 'bodega-copia-' +
+            new Date().toISOString().slice(0, 10) + '.json';
+
+        const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        enlace.download = nombreArchivo;
+        enlace.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        toast('💾 Copia descargada', 'success');
+    } catch (err) {
+        toast(`❌ ${err.message}`, 'error', 5000);
+    }
+});
+
+document.getElementById('btn-restaurar-copia').addEventListener('click', () => {
+    document.getElementById('cfg-copia-input').click();
+});
+
+document.getElementById('cfg-copia-input').addEventListener('change', (e) => {
+    const archivo = e.target.files[0];
+    e.target.value = '';
+    if (!archivo) return;
+
+    const lector = new FileReader();
+
+    lector.onload = (evt) => {
+        let datos;
+        try {
+            datos = JSON.parse(evt.target.result);
+        } catch (err) {
+            toast('❌ El archivo no es una copia válida', 'error', 5000);
+            return;
+        }
+
+        // Restaurar reemplaza TODO lo que hay aquí
+        const actual = DB.resumenDatos();
+        const aviso =
+            `Se reemplazarán los datos de este navegador.\n\n` +
+            `Ahora hay: ${actual.productos} productos, ${actual.ventas} ventas, ${actual.compras} compras.\n` +
+            `Se perderán si no tienes otra copia.\n\n` +
+            `¿Continuar?`;
+
+        if (!confirm(aviso)) return;
+
+        try {
+            const resumen = DB.importarDatos(datos);
+            toast(
+                `✅ Restaurado: ${resumen.productos} productos, ${resumen.ventas} ventas`,
+                'success', 4000
+            );
+            setTimeout(() => location.reload(), 1200);
+        } catch (err) {
+            toast(`❌ ${err.message}`, 'error', 6000);
+        }
+    };
+
+    lector.onerror = () => toast('❌ No se pudo leer el archivo', 'error');
+    lector.readAsText(archivo, 'UTF-8');
+});
+
 // ─── Guardar ───────────────────────────────────
 document.getElementById('btn-guardar-config').addEventListener('click', () => {
     const nombre = document.getElementById('cfg-nombre').value.trim();
