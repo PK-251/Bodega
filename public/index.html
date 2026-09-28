@@ -417,6 +417,25 @@
                 </div>
             </div>
 
+            <div class="cfg-seccion">
+                <h4>💾 Copia de Seguridad</h4>
+                <p class="scanner-hint" style="margin-bottom:var(--space-md)">
+                    Los datos se guardan en este navegador y en esta dirección.
+                    Entrar desde otro equipo, o por otra dirección, es empezar
+                    de cero. Usa la copia para llevarlos de uno a otro.
+                </p>
+                <div class="cfg-respaldo">
+                    <button type="button" class="btn btn-outline" id="btn-descargar-copia">
+                        ⬇ Descargar copia
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-restaurar-copia">
+                        ⬆ Restaurar copia
+                    </button>
+                    <input type="file" id="cfg-copia-input" accept=".json,application/json" style="display:none">
+                </div>
+                <p class="scanner-hint" id="cfg-resumen-datos"></p>
+            </div>
+
             <p class="scanner-hint">
                 El nombre, el teléfono, la dirección y el RUC salen en el comprobante
                 que se manda por WhatsApp. La foto se ve solo dentro del sistema.

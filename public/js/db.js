@@ -648,6 +648,72 @@ const DB = {
     },
 
     // ═══════════════════════════════════════════
+    //  COPIA DE SEGURIDAD
+    // ═══════════════════════════════════════════
+    // Los datos viven en el navegador y son distintos
+    // por cada dirección (http://...:3000 y https://...:3443
+    // son dos almacenes separados) y por cada dispositivo.
+    // Esto permite llevarlos de uno a otro y no perderlos
+    // si se borran los datos del navegador.
+
+    exportarDatos() {
+        const datos = {
+            formato: 'bodega-pos',
+            version: 1,
+            fecha: new Date().toISOString(),
+            origen: location.origin,
+            colecciones: {}
+        };
+
+        for (const clave in this.KEYS) {
+            const crudo = localStorage.getItem(this.KEYS[clave]);
+            if (crudo !== null) {
+                datos.colecciones[clave] = crudo;
+            }
+        }
+
+        return datos;
+    },
+
+    importarDatos(datos) {
+        if (!datos || datos.formato !== 'bodega-pos' || !datos.colecciones) {
+            throw new Error('El archivo no es una copia de Bodega POS');
+        }
+
+        // Se valida todo antes de tocar nada: una copia a
+        // medias dejaría el sistema en un estado inservible.
+        const validadas = {};
+        for (const clave in datos.colecciones) {
+            if (!this.KEYS[clave]) continue;
+            try {
+                JSON.parse(datos.colecciones[clave]);
+            } catch (e) {
+                throw new Error(`La copia está dañada en "${clave}"`);
+            }
+            validadas[clave] = datos.colecciones[clave];
+        }
+
+        if (Object.keys(validadas).length === 0) {
+            throw new Error('La copia no tiene datos que restaurar');
+        }
+
+        for (const clave in validadas) {
+            localStorage.setItem(this.KEYS[clave], validadas[clave]);
+        }
+
+        return this.resumenDatos();
+    },
+
+    resumenDatos() {
+        return {
+            productos: this.get('productos').length,
+            ventas: this.get('ventas').length,
+            compras: this.get('compras').length,
+            movimientos: this.get('movimientos').length
+        };
+    },
+
+    // ═══════════════════════════════════════════
     //  CARGA CSV (procesamiento en cliente)
     // ═══════════════════════════════════════════
 

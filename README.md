@@ -143,8 +143,23 @@ La foto se recorta al centro y se reduce a 256px antes de guardarse: una foto
 de celular de 4 MB queda en unos pocos KB. El navegador reserva poco espacio
 para todo el sistema, y guardar el original lo llenaría.
 
-> Los datos viven en el navegador de esa PC o celular, igual que los productos
-> y las ventas. Si abres el sistema desde otro equipo, hay que configurarlos ahí.
+### 💾 Copia de seguridad
+
+Los datos (productos, ventas, compras, caja y esta configuración) se guardan en
+**el navegador**, y el navegador los separa por **dirección**: entrar por
+`http://<ip>:3000` y por `https://<ip>:3443` son dos bodegas distintas, aunque
+sea el mismo servidor y el mismo celular. Lo mismo entre la PC y el celular.
+
+Por eso la configuración tiene **Descargar copia** y **Restaurar copia**:
+
+1. En el equipo que tiene los datos buenos: **Descargar copia** (un archivo `.json`).
+2. En el otro: **Restaurar copia** y elegir ese archivo.
+
+> Restaurar **reemplaza** todo lo que haya en ese navegador; el sistema avisa
+> antes con lo que se va a perder.
+
+> Conviene descargar una copia de vez en cuando: si se borran los datos de
+> navegación del celular, se va todo. No hay otro respaldo.
 
 ---
 

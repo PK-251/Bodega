@@ -1921,6 +1921,17 @@ body.con-barra-cobro .toast-container {
     transition: border-color var(--transition);
 }
 
+.cfg-respaldo {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.cfg-respaldo .btn {
+    flex: 1 1 140px;
+    justify-content: center;
+}
+
 .cfg-qr-zona:hover {
     border-color: var(--purple);
 }
