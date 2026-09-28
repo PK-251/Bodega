@@ -77,6 +77,45 @@ Con el celular en la **misma red Wi-Fi**, abre `https://<IP-DE-TU-PC>:3443`
 
 ---
 
+## 📷 Lector de Código de Barras
+
+Funciona en **tres lugares** y con **dos métodos**:
+
+| Dónde | Escáner USB (PC) | Cámara (celular) |
+|---|---|---|
+| **Ventas** | Dispara el código sobre el buscador: entra al carrito | Botón `📷 Cámara` junto al buscador |
+| **Nuevo / Editar Producto** | Dispara el código sobre el campo *Código de Barras* | Botón `📷` junto al campo |
+| **Nueva Compra** | Dispara el código: el producto entra a la compra | Botón `📷` junto al buscador |
+
+### En ventas
+
+El escáner USB escribe el código y termina con Enter: el producto entra al
+carrito sin tocar el mouse y el buscador queda limpio y enfocado para el
+siguiente. Escanear dos veces el mismo producto suma cantidad.
+
+Tecleando también sirve: si el nombre da **una sola** coincidencia, Enter la
+agrega; si da varias, avisa para que elijas de la lista.
+
+La cámara se queda abierta para escanear productos seguidos, con medio segundo
+de espera entre lecturas repetidas del mismo código.
+
+### En el alta de productos
+
+- El código se escribe en el campo y el foco salta al **nombre**.
+- Si el código **ya pertenece a otro producto**, el sistema lo avisa y ofrece
+  abrir ese producto para editarlo (útil para reponer stock escaneando).
+- La cámara se apaga sola al capturar el código; en **compras** se queda
+  abierta para escanear varios productos seguidos.
+
+> El botón de cámara aparece donde la cámara puede funcionar — HTTPS o
+> `localhost`, así que también sirve con una webcam en la PC — y en el celular
+> aunque falte HTTPS, para que te diga qué hace falta en vez de desaparecer.
+
+> El escáner USB no necesita nada: se comporta como un teclado y funciona
+> siempre, aun sin HTTPS.
+
+---
+
 ## 📥 Gestión de Compras
 
 Registra la mercadería que entra a la bodega. Al guardar una compra:
