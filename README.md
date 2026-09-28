@@ -74,10 +74,10 @@ deja la autoridad lista en `server/ssl/bodega-CA.crt`.
 ### Paso 4: Usarlo
 
 ```bash
-npm.cmd run https
+.\iniciar-https.bat
 ```
 
-Con el celular en la **misma red Wi-Fi**, abre `https://<IP-DE-TU-PC>:3443`
+Con el celular en la **misma red**, abre `https://<IP-DE-TU-PC>:3443`
 — el script te imprime la dirección exacta al terminar.
 
 > Si el router le cambia la IP a la PC, vuelve a correr `npm run cert`: el
@@ -290,6 +290,8 @@ bodega-pos/
 │       ├── config.js        # Datos del negocio (nombre, contacto, foto)
 │       └── caja.js          # Módulo de caja
 ├── cert.bat                 # Genera los certificados (doble clic)
+├── iniciar.bat              # Arranca el servidor normal (HTTP)
+├── iniciar-https.bat        # Arranca el servidor HTTPS (cámara)
 ├── scripts/
 │   └── generar-certificados.ps1  # Certificados HTTPS con mkcert
 ├── data/                    # Base de datos local (auto-generado)
