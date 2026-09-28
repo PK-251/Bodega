@@ -67,16 +67,23 @@ if (-not $mkcert) {
 Escribir "✓ mkcert encontrado: $mkcert" Green
 
 # ─── 2. Detectar las IP de red local ─────
-# Se incluyen TODAS las direcciones reales de la PC (puede tener
-# Wi-Fi y cable a la vez), descartando las virtuales de Docker,
-# Hyper-V, VPN y las de enlace local 169.254.
+# Se incluyen TODAS las direcciones reales de la PC (puede
+# tener Wi-Fi y cable a la vez), descartando las virtuales de
+# Docker, Hyper-V, VPN y las de enlace local 169.254.
+# Solo cuentan los adaptadores conectados: Windows conserva la
+# IP de una Wi-Fi apagada y esa dirección ya no responde.
 $virtuales = 'vEthernet|Hyper-V|VirtualBox|VMware|Docker|WSL|Loopback|Bluetooth'
+
+$conectados = @(Get-NetAdapter -ErrorAction SilentlyContinue |
+                Where-Object { $_.Status -eq 'Up' -and $_.Name -notmatch $virtuales } |
+                Select-Object -ExpandProperty ifIndex)
 
 $ips = @(Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue |
          Where-Object {
              $_.IPAddress -notlike '127.*' -and
              $_.IPAddress -notlike '169.254.*' -and
-             $_.InterfaceAlias -notmatch $virtuales
+             $_.InterfaceAlias -notmatch $virtuales -and
+             $conectados -contains $_.InterfaceIndex
          } |
          Select-Object -ExpandProperty IPAddress -Unique)
 
@@ -95,7 +102,7 @@ if ($ruta) {
     $candidata = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceIndex $ruta.InterfaceIndex -ErrorAction SilentlyContinue |
                   Where-Object { $_.IPAddress -notlike '169.254.*' } |
                   Select-Object -First 1).IPAddress
-    if ($candidata) { $ipPrincipal = $candidata }
+    if ($candidata -and ($ips -contains $candidata)) { $ipPrincipal = $candidata }
 }
 
 Escribir ("✓ IP de esta PC en la red: " + ($ips -join ', ')) Green
