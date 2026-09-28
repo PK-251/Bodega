@@ -169,9 +169,14 @@ Al elegir **Yape/Plin** como método de pago aparece el botón *Mostrar QR al
 cliente*: abre el código en grande con el **monto exacto**, tu nombre y tu
 número, para que el cliente escanee sin tipear nada.
 
-Carga tu QR una sola vez en la configuración (⚙️). Se guarda en PNG y sin
-recortar, para que no pierda las esquinas ni se difumine: si se deforma, deja
-de leerse.
+Carga tu QR una sola vez en la configuración (⚙️). Puedes subir la captura
+tal como sale de la app de Yape: **desde el celular se recorta sola al código**
+y descarta el fondo, el logo y el nombre, que solo lo achican. Se guarda en PNG
+para que no se difuminen los cuadros.
+
+> El recorte automático usa el detector de códigos del navegador, que existe en
+> el Chrome del celular pero no en el de Windows. Si la cargas desde la PC, se
+> guarda completa y el sistema te lo avisa.
 
 > El sistema **no verifica** que el pago haya llegado: confirma en tu app de
 > Yape antes de cerrar la venta.

@@ -746,7 +746,10 @@ input, select, button, textarea {
 /* Método de pago */
 .metodo-pago-group {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* Se reparten el ancho según cuántos haya: con tres
+       columnas fijas, al quitar uno quedaba un hueco. */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     gap: var(--space-xs);
 }
 
@@ -1981,7 +1984,7 @@ body.con-barra-cobro .toast-container {
 
 .qr-pago-img {
     width: 100%;
-    max-width: 280px;
+    max-width: 340px;
     aspect-ratio: 1 / 1;
     object-fit: contain;
     background: #fff;
@@ -2362,9 +2365,6 @@ button,
 
     /* Métodos de pago en fila, no apilados:
        tres botones grandes ocupaban media pantalla */
-    .metodo-pago-group {
-        grid-template-columns: repeat(3, 1fr);
-    }
 
     .metodo-pago-btn {
         padding: 8px 4px;

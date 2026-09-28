@@ -179,13 +179,20 @@ document.getElementById('cfg-qr-input').addEventListener('change', (e) => {
         return;
     }
 
-    reducirQr(archivo, (dataUrl) => {
+    reducirQr(archivo, (dataUrl, recortado) => {
         if (!dataUrl) {
             toast('❌ No se pudo leer la imagen', 'error');
             return;
         }
+
         qrPendiente = dataUrl;
         renderPreviewQr(dataUrl);
+
+        if (recortado) {
+            toast('✂️ Recortado al código', 'success', 2500);
+        } else {
+            toast('ℹ️ Se guardó la imagen completa. Desde el celular se recorta sola.', 'info', 5000);
+        }
     });
 });
 
@@ -194,9 +201,14 @@ document.getElementById('btn-quitar-qr').addEventListener('click', () => {
     renderPreviewQr(null);
 });
 
-// A diferencia de la foto, el QR no se recorta (perdería
-// esquinas y dejaría de leerse) y se guarda en PNG, que no
-// difumina los cuadros como haría el JPEG.
+// A diferencia de la foto, el QR no se recorta a ciegas
+// (perdería esquinas y dejaría de leerse) y se guarda en
+// PNG, que no difumina los cuadros como haría el JPEG.
+//
+// Si el navegador sabe encontrar códigos —el Chrome del
+// celular sí—, se recorta solo al código y se descarta el
+// resto de la captura de Yape: el fondo morado, el logo y
+// el nombre no aportan nada y achican el código.
 function reducirQr(archivo, callback) {
     const lector = new FileReader();
 
@@ -204,108 +216,79 @@ function reducirQr(archivo, callback) {
         const img = new Image();
 
         img.onload = () => {
-            try {
-                const escala = Math.min(1, QR_LADO_MAX / Math.max(img.width, img.height));
-                const canvas = document.createElement('canvas');
-                canvas.width = Math.round(img.width * escala);
-                canvas.height = Math.round(img.height * escala);
-
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                callback(canvas.toDataURL('image/png'));
-            } catch (err) {
-                callback(null);
-            }
+            buscarCodigo(img, (recorte) => {
+                try {
+                    callback(dibujarQr(img, recorte), !!recorte);
+                } catch (err) {
+                    callback(null, false);
+                }
+            });
         };
 
-        img.onerror = () => callback(null);
+        img.onerror = () => callback(null, false);
         img.src = e.target.result;
     };
 
-    lector.onerror = () => callback(null);
+    lector.onerror = () => callback(null, false);
     lector.readAsDataURL(archivo);
 }
 
+// Devuelve el rectángulo del código, o null si este
+// navegador no sabe buscarlo o no encontró ninguno.
+function buscarCodigo(img, callback) {
+    if (typeof BarcodeDetector === 'undefined') {
+        callback(null);
+        return;
+    }
 
-// ─── Copia de seguridad ────────────────────────
-// Sirve para llevar los datos a otro equipo, o a la
-// misma app abierta por otra dirección: el navegador
-// guarda un almacén distinto para cada una.
+    BarcodeDetector.getSupportedFormats()
+        .then((formatos) => {
+            if (formatos.indexOf('qr_code') === -1) return null;
+            return new BarcodeDetector({ formats: ['qr_code'] }).detect(img);
+        })
+        .then((codigos) => {
+            if (!codigos || codigos.length === 0) {
+                callback(null);
+                return;
+            }
 
-function renderResumenDatos() {
-    const r = DB.resumenDatos();
-    document.getElementById('cfg-resumen-datos').textContent =
-        `Ahora mismo aquí: ${r.productos} productos, ${r.ventas} ventas, ${r.compras} compras.`;
+            const caja = codigos[0].boundingBox;
+
+            // Margen alrededor: un QR sin borde blanco no se lee
+            const margen = Math.round(Math.max(caja.width, caja.height) * 0.12);
+            const x = Math.max(0, Math.round(caja.x - margen));
+            const y = Math.max(0, Math.round(caja.y - margen));
+
+            callback({
+                x: x,
+                y: y,
+                ancho: Math.min(img.width - x, Math.round(caja.width + margen * 2)),
+                alto: Math.min(img.height - y, Math.round(caja.height + margen * 2))
+            });
+        })
+        .catch(() => callback(null));
 }
 
-document.getElementById('btn-descargar-copia').addEventListener('click', () => {
-    try {
-        const datos = DB.exportarDatos();
-        const nombreArchivo = 'bodega-copia-' +
-            new Date().toISOString().slice(0, 10) + '.json';
+function dibujarQr(img, recorte) {
+    const origen = recorte || { x: 0, y: 0, ancho: img.width, alto: img.height };
 
-        const blob = new Blob([JSON.stringify(datos)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const enlace = document.createElement('a');
-        enlace.href = url;
-        enlace.download = nombreArchivo;
-        enlace.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    // No se agranda: un QR estirado se lee peor que uno chico
+    const escala = Math.min(1, QR_LADO_MAX / Math.max(origen.ancho, origen.alto));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(origen.ancho * escala);
+    canvas.height = Math.round(origen.alto * escala);
 
-        toast('💾 Copia descargada', 'success');
-    } catch (err) {
-        toast(`❌ ${err.message}`, 'error', 5000);
-    }
-});
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(
+        img,
+        origen.x, origen.y, origen.ancho, origen.alto,
+        0, 0, canvas.width, canvas.height
+    );
 
-document.getElementById('btn-restaurar-copia').addEventListener('click', () => {
-    document.getElementById('cfg-copia-input').click();
-});
-
-document.getElementById('cfg-copia-input').addEventListener('change', (e) => {
-    const archivo = e.target.files[0];
-    e.target.value = '';
-    if (!archivo) return;
-
-    const lector = new FileReader();
-
-    lector.onload = (evt) => {
-        let datos;
-        try {
-            datos = JSON.parse(evt.target.result);
-        } catch (err) {
-            toast('❌ El archivo no es una copia válida', 'error', 5000);
-            return;
-        }
-
-        // Restaurar reemplaza TODO lo que hay aquí
-        const actual = DB.resumenDatos();
-        const aviso =
-            `Se reemplazarán los datos de este navegador.\n\n` +
-            `Ahora hay: ${actual.productos} productos, ${actual.ventas} ventas, ${actual.compras} compras.\n` +
-            `Se perderán si no tienes otra copia.\n\n` +
-            `¿Continuar?`;
-
-        if (!confirm(aviso)) return;
-
-        try {
-            const resumen = DB.importarDatos(datos);
-            toast(
-                `✅ Restaurado: ${resumen.productos} productos, ${resumen.ventas} ventas`,
-                'success', 4000
-            );
-            setTimeout(() => location.reload(), 1200);
-        } catch (err) {
-            toast(`❌ ${err.message}`, 'error', 6000);
-        }
-    };
-
-    lector.onerror = () => toast('❌ No se pudo leer el archivo', 'error');
-    lector.readAsText(archivo, 'UTF-8');
-});
+    return canvas.toDataURL('image/png');
+}
 
 // ─── Guardar ───────────────────────────────────
 document.getElementById('btn-guardar-config').addEventListener('click', () => {
