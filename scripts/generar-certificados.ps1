@@ -27,18 +27,44 @@ Escribir "═══ Certificados HTTPS para Bodega POS ═══" Cyan
 Escribir ""
 
 # ─── 1. Verificar mkcert ──────────────────────
-$mkcert = Get-Command mkcert -ErrorAction SilentlyContinue
+# Recién instalado con winget no queda en el PATH de esta
+# terminal hasta reiniciarla, así que también se busca donde
+# winget deja los programas.
+function BuscarMkcert {
+    $cmd = Get-Command mkcert -ErrorAction SilentlyContinue
+    if ($cmd) { return $cmd.Source }
+
+    $candidatos = @(
+        (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\mkcert.exe"),
+        (Join-Path $env:ProgramFiles "mkcert\mkcert.exe"),
+        "C:\ProgramData\chocolatey\bin\mkcert.exe"
+    )
+    foreach ($c in $candidatos) {
+        if ($c -and (Test-Path $c)) { return $c }
+    }
+
+    $paquetes = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages"
+    if (Test-Path $paquetes) {
+        $hallado = Get-ChildItem $paquetes -Recurse -Filter "mkcert*.exe" -ErrorAction SilentlyContinue |
+                   Select-Object -First 1
+        if ($hallado) { return $hallado.FullName }
+    }
+
+    return $null
+}
+
+$mkcert = BuscarMkcert
 if (-not $mkcert) {
     Escribir "❌ mkcert no está instalado." Red
     Escribir ""
     Escribir "   Instálalo con:" Yellow
     Escribir "   winget install FiloSottile.mkcert" White
     Escribir ""
-    Escribir "   Luego cierra y vuelve a abrir la terminal, y repite: npm run cert" Yellow
+    Escribir "   Luego repite: npm run cert" Yellow
     Escribir ""
     exit 1
 }
-Escribir "✓ mkcert encontrado: $($mkcert.Source)" Green
+Escribir "✓ mkcert encontrado: $mkcert" Green
 
 # ─── 2. Detectar las IP de red local ─────
 # Se incluyen TODAS las direcciones reales de la PC (puede tener
@@ -78,7 +104,7 @@ Escribir ("✓ IP de esta PC en la red: " + ($ips -join ', ')) Green
 Escribir ""
 Escribir "→ Instalando la autoridad certificadora local en Windows..." Cyan
 Escribir "  (puede aparecer una ventana de Windows pidiendo confirmación)" DarkGray
-& mkcert -install
+& $mkcert -install
 if ($LASTEXITCODE -ne 0) {
     Escribir "❌ Falló 'mkcert -install'." Red
     exit 1
@@ -96,7 +122,7 @@ $nombres = @('localhost', '127.0.0.1', '::1') + $ips
 
 Push-Location $sslDir
 try {
-    & mkcert -key-file key.pem -cert-file cert.pem @nombres
+    & $mkcert -key-file key.pem -cert-file cert.pem @nombres
     if ($LASTEXITCODE -ne 0) { throw "mkcert no pudo generar el certificado" }
 } finally {
     Pop-Location
@@ -104,7 +130,7 @@ try {
 Escribir "✓ Certificado creado en server\ssl\" Green
 
 # ─── 5. Copiar la CA para el celular ──────────
-$caRoot = (& mkcert -CAROOT).Trim()
+$caRoot = (& $mkcert -CAROOT).Trim()
 $caOrigen = Join-Path $caRoot 'rootCA.pem'
 $caDestino = Join-Path $sslDir 'bodega-CA.crt'
 

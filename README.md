@@ -34,7 +34,7 @@ sola vez en el celular, Chrome deja de mostrar advertencias para siempre.
 winget install FiloSottile.mkcert
 ```
 
-Cierra y vuelve a abrir la terminal para que quede en el PATH.
+El script lo encuentra aunque la terminal aún no tenga el PATH actualizado.
 
 ### Paso 2: Generar los certificados
 
