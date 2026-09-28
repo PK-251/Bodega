@@ -1892,6 +1892,114 @@ body.con-barra-cobro .toast-container {
     font-size: 0.75rem;
 }
 
+/* ─── Yape / Plin: QR de cobro ─────────────── */
+.cfg-seccion {
+    margin: var(--space-xl) 0;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border);
+}
+
+.cfg-seccion h4 {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-lg);
+}
+
+.cfg-qr-zona {
+    width: 86px;
+    height: 86px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: border-color var(--transition);
+}
+
+.cfg-qr-zona:hover {
+    border-color: var(--purple);
+}
+
+.cfg-qr-zona img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+}
+
+/* Botón para enseñarle el QR al cliente */
+.btn-mostrar-qr {
+    display: none;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: var(--space-md);
+    border: 2px solid var(--purple);
+    border-radius: var(--radius);
+    background: var(--purple-light);
+    color: var(--purple);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.btn-mostrar-qr.visible {
+    display: block;
+}
+
+.btn-mostrar-qr:hover {
+    background: #ddd6fe;
+}
+
+/* El QR en grande, para que el cliente lo escanee */
+.qr-pago {
+    text-align: center;
+}
+
+.qr-pago-monto {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--purple);
+    margin-bottom: var(--space-md);
+}
+
+.qr-pago-img {
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-sm);
+}
+
+.qr-pago-datos {
+    margin-top: var(--space-md);
+}
+
+.qr-pago-nombre {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.qr-pago-numero {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+}
+
+.qr-pago-hint {
+    margin-top: var(--space-md);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
 /* ─── Enviar comprobante por WhatsApp ────── */
 .enviar-whatsapp {
     margin-top: var(--space-lg);
@@ -1926,6 +2034,29 @@ body.con-barra-cobro .toast-container {
 
 .btn-whatsapp:hover {
     background: #1da851;
+}
+
+.btn-enviar-imagen {
+    width: 100%;
+    margin-top: var(--space-sm);
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.btn-enviar-imagen:hover {
+    background: var(--bg);
+}
+
+.btn-enviar-imagen:disabled {
+    opacity: 0.6;
+    cursor: default;
 }
 
 /* ─── Compatibilidad móvil ─────────────────────

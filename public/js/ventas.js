@@ -287,7 +287,30 @@ document.getElementById('metodo-pago').addEventListener('click', (e) => {
     } else {
         vueltoSection.classList.remove('visible');
     }
+    actualizarBotonQr();
     actualizarBotonCobrar();
+});
+
+// ─── QR de Yape / Plin para el cliente ──────
+// Solo tiene sentido con Yape/Plin elegido y un QR cargado.
+const btnMostrarQr = document.getElementById('btn-mostrar-qr');
+
+function actualizarBotonQr() {
+    const cfg = APP.config || DB.getConfig();
+    const mostrar = metodoPago === 'YAPE_PLIN' && !!cfg.yape_qr;
+    btnMostrarQr.classList.toggle('visible', mostrar);
+}
+
+btnMostrarQr.addEventListener('click', () => {
+    const cfg = APP.config || DB.getConfig();
+    if (!cfg.yape_qr) return;
+
+    document.getElementById('qr-pago-monto').textContent = formatMoney(calcularTotal());
+    document.getElementById('qr-pago-img').src = cfg.yape_qr;
+    document.getElementById('qr-pago-nombre').textContent = cfg.yape_nombre || cfg.nombre;
+    document.getElementById('qr-pago-numero').textContent = cfg.yape_numero || '';
+
+    abrirModal('modal-qr-pago');
 });
 
 // ─── Calculadora de Vuelto ─────────────────────
@@ -408,9 +431,15 @@ function realizarCobro() {
 }
 
 let ultimaVenta = null;
+let ultimaVentaImagen = null;
 
 function mostrarRecibo(result) {
     ultimaVenta = result;
+
+    // Se dibuja de una vez: compartir más tarde debe ser
+    // inmediato, o Android descarta el permiso del toque.
+    ultimaVentaImagen = null;
+    dibujarComprobante(result, (blob) => { ultimaVentaImagen = blob; });
     document.getElementById('recibo-telefono').value = '';
     document.getElementById('recibo-numero').textContent = result.numero_comprobante;
     document.getElementById('recibo-total').textContent = formatMoney(result.total);
@@ -565,6 +594,253 @@ function textoComprobante(venta) {
 
     return lineas.join(String.fromCharCode(10));
 }
+
+
+// ─── Comprobante como imagen ───────────────────
+// WhatsApp no deja adjuntar por enlace, pero el celular
+// sí puede compartir un archivo con la hoja nativa de
+// Android. Se dibuja el comprobante en un canvas y se
+// comparte como PNG; en la PC se descarga.
+
+const RECIBO_ANCHO = 520;
+const RECIBO_ESCALA = 2;   // para que no se vea pixelado
+
+function dibujarComprobante(venta, callback) {
+    const cfg = APP.config || DB.getConfig();
+
+    const fecha = new Date(venta.fecha).toLocaleString('es-PE', {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+    });
+    const tipo = venta.tipo_comprobante === 'BOLETA' ? 'BOLETA DE VENTA' : 'TICKET';
+    const metodos = { EFECTIVO: 'Efectivo', YAPE_PLIN: 'Yape/Plin' };
+
+    // Altura variable según cuántos productos lleve
+    const alturaBase = 430;
+    const alturaItems = venta.items.length * 30;
+    const alturaExtra = (venta.metodo_pago === 'EFECTIVO' && venta.vuelto > 0) ? 56 : 0;
+    const alto = alturaBase + alturaItems + alturaExtra;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = RECIBO_ANCHO * RECIBO_ESCALA;
+    canvas.height = alto * RECIBO_ESCALA;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(RECIBO_ESCALA, RECIBO_ESCALA);
+
+    const M = 36;                    // margen
+    const DER = RECIBO_ANCHO - M;    // borde derecho del texto
+    let y = 0;
+
+    // Fondo
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, RECIBO_ANCHO, alto);
+
+    // Franja superior
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, RECIBO_ANCHO, 8);
+
+    const fuente = (peso, tam) => `${peso} ${tam}px Inter, -apple-system, Segoe UI, sans-serif`;
+
+    function linea(yy) {
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(M, yy);
+        ctx.lineTo(DER, yy);
+        ctx.stroke();
+    }
+
+    function terminar() {
+        canvas.toBlob((blob) => callback(blob), 'image/png');
+    }
+
+    function pintarTexto() {
+        // Nombre del negocio
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = fuente(800, 26);
+        ctx.fillText(cfg.nombre, RECIBO_ANCHO / 2, y);
+        y += 24;
+
+        ctx.font = fuente(400, 13);
+        ctx.fillStyle = '#64748b';
+        if (cfg.ruc) { ctx.fillText('RUC ' + cfg.ruc, RECIBO_ANCHO / 2, y); y += 18; }
+        if (cfg.direccion) { ctx.fillText(cfg.direccion, RECIBO_ANCHO / 2, y); y += 18; }
+
+        y += 10;
+        linea(y);
+        y += 28;
+
+        // Tipo y número
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = fuente(700, 14);
+        ctx.fillText(tipo, M, y);
+        ctx.textAlign = 'right';
+        ctx.font = fuente(600, 14);
+        ctx.fillText(venta.numero_comprobante, DER, y);
+        y += 20;
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = fuente(400, 12);
+        ctx.fillText(fecha, DER, y);
+        y += 18;
+
+        linea(y);
+        y += 28;
+
+        // Productos
+        venta.items.forEach((item) => {
+            const importe = formatMoney(item.precio_unitario * item.cantidad);
+
+            ctx.textAlign = 'right';
+            ctx.fillStyle = '#0f172a';
+            ctx.font = fuente(600, 14);
+            ctx.fillText(importe, DER, y);
+
+            ctx.textAlign = 'left';
+            ctx.font = fuente(400, 14);
+            const anchoImporte = ctx.measureText(importe).width + 24;
+            const etiqueta = `${item.cantidad} x ${item.nombre}`;
+            ctx.fillText(recortar(ctx, etiqueta, DER - M - anchoImporte), M, y);
+
+            y += 30;
+        });
+
+        y += 2;
+        linea(y);
+        y += 34;
+
+        // Total
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#64748b';
+        ctx.font = fuente(600, 14);
+        ctx.fillText('TOTAL', M, y);
+
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = fuente(800, 30);
+        ctx.fillText(formatMoney(venta.total), DER, y + 6);
+        y += 40;
+
+        // Pago
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#64748b';
+        ctx.font = fuente(400, 13);
+        ctx.fillText('Pago: ' + (metodos[venta.metodo_pago] || venta.metodo_pago), M, y);
+        y += 22;
+
+        if (venta.metodo_pago === 'EFECTIVO' && venta.vuelto > 0) {
+            ctx.fillText('Pagó con: ' + formatMoney(venta.monto_pagado), M, y);
+            y += 20;
+            ctx.fillStyle = '#059669';
+            ctx.font = fuente(700, 14);
+            ctx.fillText('Vuelto: ' + formatMoney(venta.vuelto), M, y);
+            y += 24;
+        }
+
+        y += 12;
+        linea(y);
+        y += 30;
+
+        // Pie
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = fuente(700, 15);
+        ctx.fillText('¡Gracias por su compra!', RECIBO_ANCHO / 2, y);
+        y += 22;
+
+        if (cfg.telefono) {
+            ctx.fillStyle = '#64748b';
+            ctx.font = fuente(400, 13);
+            ctx.fillText('Pedidos: ' + cfg.telefono, RECIBO_ANCHO / 2, y);
+        }
+
+        terminar();
+    }
+
+    // La foto del negocio encabeza el comprobante
+    if (cfg.foto) {
+        const logo = new Image();
+        logo.onload = () => {
+            const lado = 64;
+            const x = (RECIBO_ANCHO - lado) / 2;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(RECIBO_ANCHO / 2, 40 + lado / 2, lado / 2, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(logo, x, 40, lado, lado);
+            ctx.restore();
+            y = 40 + lado + 34;
+            pintarTexto();
+        };
+        logo.onerror = () => { y = 60; pintarTexto(); };
+        logo.src = cfg.foto;
+    } else {
+        y = 60;
+        pintarTexto();
+    }
+}
+
+// Corta el nombre con puntos suspensivos si no entra
+function recortar(ctx, texto, anchoMax) {
+    if (ctx.measureText(texto).width <= anchoMax) return texto;
+
+    let corto = texto;
+    while (corto.length > 4 && ctx.measureText(corto + '…').width > anchoMax) {
+        corto = corto.slice(0, -1);
+    }
+    return corto + '…';
+}
+
+function enviarComprobanteImagen() {
+    if (!ultimaVenta) return;
+
+    // Si ya está lista se comparte sin pasos intermedios:
+    // así el navegador sigue viendo el toque del usuario.
+    if (ultimaVentaImagen) {
+        compartirImagen(ultimaVentaImagen);
+        return;
+    }
+
+    const btn = document.getElementById('btn-enviar-imagen');
+    btn.disabled = true;
+
+    dibujarComprobante(ultimaVenta, (blob) => {
+        btn.disabled = false;
+        if (!blob) {
+            toast('❌ No se pudo generar la imagen', 'error');
+            return;
+        }
+        compartirImagen(blob);
+    });
+}
+
+function compartirImagen(blob) {
+    const nombre = `comprobante-${ultimaVenta.numero_comprobante}.png`;
+    const archivo = new File([blob], nombre, { type: 'image/png' });
+
+    // En el celular: hoja nativa para elegir WhatsApp
+    if (navigator.canShare && navigator.canShare({ files: [archivo] })) {
+        navigator.share({
+            files: [archivo],
+            text: textoComprobante(ultimaVenta)
+        }).catch(() => { /* el usuario canceló */ });
+        return;
+    }
+
+    // En la PC: se descarga para adjuntarla a mano
+    const url = URL.createObjectURL(blob);
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.download = nombre;
+    enlace.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('📥 Imagen descargada — adjúntala en WhatsApp', 'info', 5000);
+}
+
+document.getElementById('btn-enviar-imagen').addEventListener('click', enviarComprobanteImagen);
 
 // ─── LocalStorage: Contingencia ────────────────
 function guardarVentaLocal() {

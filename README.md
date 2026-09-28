@@ -135,7 +135,9 @@ El botón ⚙️ de la esquina superior derecha abre la configuración:
 | **Teléfono / WhatsApp** | Al pie del comprobante, como *"Pedidos: ..."* |
 | **Dirección** | Bajo el nombre en el comprobante |
 | **RUC** | Bajo el nombre en el comprobante |
-| **Foto** | Encabezado del sistema |
+| **Foto** | Encabezado del sistema y del comprobante en imagen |
+| **QR de Yape / Plin** | Se le muestra al cliente al cobrar |
+| **Nombre y número de Yape** | Debajo del QR, para que el cliente confirme |
 
 La foto se recorta al centro y se reduce a 256px antes de guardarse: una foto
 de celular de 4 MB queda en unos pocos KB. El navegador reserva poco espacio
@@ -143,6 +145,23 @@ para todo el sistema, y guardar el original lo llenaría.
 
 > Los datos viven en el navegador de esa PC o celular, igual que los productos
 > y las ventas. Si abres el sistema desde otro equipo, hay que configurarlos ahí.
+
+---
+
+## 📱 Cobrar por Yape / Plin
+
+Al elegir **Yape/Plin** como método de pago aparece el botón *Mostrar QR al
+cliente*: abre el código en grande con el **monto exacto**, tu nombre y tu
+número, para que el cliente escanee sin tipear nada.
+
+Carga tu QR una sola vez en la configuración (⚙️). Se guarda en PNG y sin
+recortar, para que no pierda las esquinas ni se difumine: si se deforma, deja
+de leerse.
+
+> El sistema **no verifica** que el pago haya llegado: confirma en tu app de
+> Yape antes de cerrar la venta.
+
+> El pago con **tarjeta** se quitó: un negocio NRUS no suele tener POS.
 
 ---
 
@@ -179,8 +198,19 @@ Sin número, abre WhatsApp para que elijas el contacto de la lista.
 > contratar la API de WhatsApp Business con un proveedor y plantillas
 > aprobadas — no se puede desde una web.
 
-> Va como **texto**, no como PDF ni imagen: los enlaces de WhatsApp no
-> permiten adjuntar archivos.
+### Como imagen
+
+El botón **Enviar como imagen** arma el comprobante dibujado — con tu foto,
+nombre, RUC, dirección, productos, total y vuelto — y lo comparte:
+
+- **En el celular:** abre la hoja de Android para elegir WhatsApp y va como foto.
+- **En la PC:** se descarga el PNG para adjuntarlo a mano.
+
+La imagen se dibuja apenas se cierra la venta, no al tocar el botón: Android
+descarta el permiso de compartir si pasa demasiado entre el toque y el envío.
+
+> El botón verde de arriba manda el mismo comprobante como **texto**, que pesa
+> menos y se puede buscar en el chat. La imagen se ve mejor; elige según el caso.
 
 Los datos del encabezado salen de la configuración (botón ⚙️).
 

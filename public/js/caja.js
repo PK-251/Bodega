@@ -30,7 +30,6 @@ function renderEstadoCaja(estado) {
         document.getElementById('caja-est-apertura').textContent = 'S/ 0.00';
         document.getElementById('caja-est-efectivo').textContent = 'S/ 0.00';
         document.getElementById('caja-est-yape').textContent = 'S/ 0.00';
-        document.getElementById('caja-est-tarjeta').textContent = 'S/ 0.00';
         document.getElementById('caja-est-saldo').textContent = 'S/ 0.00';
     }
 
@@ -43,7 +42,6 @@ function cargarResumenVentas() {
         const resumen = DB.getResumenHoy();
         document.getElementById('caja-est-efectivo').textContent = formatMoney(resumen.total_efectivo);
         document.getElementById('caja-est-yape').textContent = formatMoney(resumen.total_yape);
-        document.getElementById('caja-est-tarjeta').textContent = formatMoney(resumen.total_tarjeta);
     } catch (e) { /* Silencioso */ }
 }
 

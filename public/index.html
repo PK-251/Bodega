@@ -137,13 +137,14 @@
                                         <span class="mp-icon">📱</span>
                                         Yape/Plin
                                     </button>
-                                    <button class="metodo-pago-btn" data-metodo="TARJETA">
-                                        <span class="mp-icon">💳</span>
-                                        Tarjeta
-                                    </button>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- QR de Yape / Plin -->
+                        <button class="btn-mostrar-qr" id="btn-mostrar-qr">
+                            📱 Mostrar QR al cliente
+                        </button>
 
                         <!-- Calculadora de Vuelto -->
                         <div class="vuelto-section visible" id="vuelto-section">
@@ -322,10 +323,6 @@
                         <span class="stat-value positive" id="caja-est-yape">S/ 0.00</span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label">Ventas Tarjeta</span>
-                        <span class="stat-value positive" id="caja-est-tarjeta">S/ 0.00</span>
-                    </div>
-                    <div class="stat-row">
                         <span class="stat-label">Saldo en Sistema</span>
                         <span class="stat-value positive" id="caja-est-saldo" style="font-size:1.1rem">S/ 0.00</span>
                     </div>
@@ -388,6 +385,36 @@
             <div class="form-group">
                 <label>RUC</label>
                 <input type="text" class="form-control" id="cfg-ruc" placeholder="10XXXXXXXXX" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <div class="cfg-seccion">
+                <h4>📱 Cobro por Yape / Plin</h4>
+
+                <div class="cfg-foto-row">
+                    <div class="cfg-qr-zona" id="cfg-qr-zona" title="Elegir el QR">
+                        <img id="cfg-qr-preview" alt="QR de Yape o Plin" style="display:none">
+                        <span id="cfg-qr-vacio">▦</span>
+                    </div>
+                    <div class="cfg-foto-texto">
+                        <strong>Tu código QR</strong>
+                        <p>Captura el QR desde la app de Yape o Plin y elígelo aquí. Se le muestra al cliente al cobrar.</p>
+                        <button type="button" class="btn btn-outline" id="btn-quitar-qr" style="display:none">
+                            Quitar QR
+                        </button>
+                        <input type="file" id="cfg-qr-input" accept="image/*" style="display:none">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nombre que le aparece al cliente</label>
+                        <input type="text" class="form-control" id="cfg-yape-nombre" placeholder="Ej: Miguel A." autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label>Número de Yape / Plin</label>
+                        <input type="tel" class="form-control" id="cfg-yape-numero" placeholder="987 654 321" inputmode="numeric" autocomplete="off">
+                    </div>
+                </div>
             </div>
 
             <p class="scanner-hint">
@@ -776,6 +803,33 @@
     </div>
 </div>
 
+<!-- Modal: QR para que el cliente pague -->
+<div class="modal-overlay" id="modal-qr-pago">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>📱 Cobrar por Yape / Plin</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-qr-pago')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="qr-pago">
+                <div class="qr-pago-monto" id="qr-pago-monto">S/ 0.00</div>
+                <img class="qr-pago-img" id="qr-pago-img" alt="Código QR de pago">
+                <div class="qr-pago-datos">
+                    <div class="qr-pago-nombre" id="qr-pago-nombre"></div>
+                    <div class="qr-pago-numero" id="qr-pago-numero"></div>
+                </div>
+                <p class="qr-pago-hint">
+                    El cliente escanea el código y paga el monto exacto.
+                    Confirma en tu app antes de cerrar la venta.
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-qr-pago')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Venta Completada -->
 <div class="modal-overlay" id="modal-venta-ok">
     <div class="modal">
@@ -803,6 +857,10 @@
                 <p class="scanner-hint">
                     Sin número, abre WhatsApp para que elijas el contacto.
                 </p>
+
+                <button type="button" class="btn-enviar-imagen" id="btn-enviar-imagen">
+                    🖼️ Enviar como imagen
+                </button>
             </div>
         </div>
         <div class="modal-footer" style="justify-content:center">

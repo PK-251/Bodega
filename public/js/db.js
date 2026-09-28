@@ -56,7 +56,11 @@ const DB = {
         telefono: '',
         direccion: '',
         ruc: '',
-        foto: null
+        foto: null,
+        // Cobro por Yape / Plin
+        yape_qr: null,
+        yape_nombre: '',
+        yape_numero: ''
     },
 
     getConfig() {
