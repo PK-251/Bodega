@@ -1541,9 +1541,6 @@ textarea.form-control {
         font-size: 1.4rem;
     }
 
-    .metodo-pago-group {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* ─── Compras ──────────────────────────────── */
@@ -2097,6 +2094,233 @@ button,
 .stat-value {
     overflow-wrap: break-word;
     word-wrap: break-word;
+}
+
+/* ─── Barra de cobro flotante (celular) ────────
+   En el celular el total y el botón Cobrar quedan
+   una pantalla más abajo. Esta barra los mantiene
+   siempre a la vista mientras se eligen productos. */
+.barra-cobro {
+    display: none;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 900;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    padding-bottom: max(var(--space-md), env(safe-area-inset-bottom));
+    background: linear-gradient(135deg, #1e3a5f 0%, #1e293b 100%);
+    color: var(--text-inverse);
+    box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.18);
+}
+
+.barra-cobro.visible {
+    display: flex;
+}
+
+.barra-cobro-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    min-width: 0;
+}
+
+.barra-cobro-items {
+    font-size: 0.72rem;
+    opacity: 0.75;
+}
+
+.barra-cobro-total {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.barra-cobro-btn {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    border: none;
+    border-radius: var(--radius);
+    background: var(--success);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.barra-cobro-btn:active {
+    background: var(--success-hover);
+}
+
+/* ─── Ventas en celular ────────────────────── */
+@media (max-width: 900px) {
+    /* Buscador en una sola línea: el botón de cámara
+       partía el renglón y se veía desordenado */
+    .search-bar {
+        flex-wrap: nowrap;
+    }
+
+    .search-bar input {
+        min-width: 0;
+    }
+
+    .btn-scanner {
+        padding: 8px 10px;
+        font-size: 0;  /* solo el ícono */
+        gap: 0;
+    }
+
+    .btn-scanner::before {
+        content: '📷';
+        font-size: 1.1rem;
+    }
+
+    /* Lista más corta y compacta: así el carrito
+       queda a un golpe de scroll, no a una pantalla */
+    .resultados-lista {
+        max-height: 38vh;
+        max-height: 38dvh;
+    }
+
+    .resultado-item {
+        padding: var(--space-sm) var(--space-md);
+        gap: var(--space-sm);
+    }
+
+    .resultado-item .prod-nombre {
+        font-size: 0.88rem;
+    }
+
+    .resultado-item .prod-meta {
+        font-size: 0.7rem;
+    }
+
+    .resultado-item .prod-precio {
+        font-size: 0.95rem;
+    }
+
+    /* Métodos de pago en fila, no apilados:
+       tres botones grandes ocupaban media pantalla */
+    .metodo-pago-group {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .metodo-pago-btn {
+        padding: 8px 4px;
+        font-size: 0.68rem;
+    }
+
+    .metodo-pago-btn .mp-icon {
+        font-size: 1.1rem;
+    }
+
+    /* Sitio para la barra flotante */
+    .app-main {
+        padding-bottom: 88px;
+    }
+
+    .venta-items {
+        max-height: 40vh;
+        max-height: 40dvh;
+    }
+}
+
+/* ─── Tablas como tarjetas en celular ──────────
+   Una tabla de 6 o 7 columnas en 360px obliga a
+   arrastrar de lado y siempre queda algo cortado.
+   En pantalla angosta cada fila pasa a ser una
+   tarjeta con el nombre arriba y sus datos debajo. */
+@media (max-width: 600px) {
+    .data-table-wrapper {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        overflow: visible;
+    }
+
+    .data-table thead {
+        display: none;
+    }
+
+    .data-table,
+    .data-table tbody,
+    .data-table tr,
+    .data-table td {
+        display: block;
+        width: auto;
+    }
+
+    .data-table tr {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: var(--space-md);
+        padding-right: 86px;   /* sitio para los botones */
+        margin-bottom: var(--space-sm);
+    }
+
+    .data-table td {
+        border: none;
+        padding: 0;
+        font-size: 0.8rem;
+    }
+
+    .data-table td[data-label]::before {
+        content: attr(data-label) ": ";
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.72rem;
+    }
+
+    /* El nombre manda: va primero y sin etiqueta */
+    .data-table td.celda-titulo {
+        order: -1;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+
+    /* Los botones, fijos arriba a la derecha */
+    .data-table td.celda-acciones {
+        position: absolute;
+        top: var(--space-md);
+        right: var(--space-md);
+        padding: 0;
+    }
+
+    .data-table .table-actions {
+        justify-content: flex-end;
+    }
+
+    /* Fila de "no hay nada que mostrar" */
+    .data-table td[colspan] {
+        text-align: center;
+        padding: var(--space-lg) 0 !important;
+    }
+
+    .data-table tr:has(td[colspan]) {
+        padding-right: var(--space-md);
+    }
+}
+
+/* Encabezado de sección: en pantalla angosta los
+   botones no deben salirse ni cortarse */
+@media (max-width: 400px) {
+    .inventario-actions {
+        flex-wrap: wrap;
+    }
+
+    .inventario-actions .btn {
+        min-width: 0;
+        flex: 1 1 130px;
+        padding: 10px 8px;
+        font-size: 0.78rem;
+    }
 }
 
 /* ─── Scrollbar personalizado ───────────────── */

@@ -212,6 +212,17 @@ Pensado para **PC con Windows + celular Android**, que es el equipo de la bodega
 sección desborda la pantalla. Las tablas anchas (inventario, compras) se
 deslizan en horizontal con el dedo.
 
+**Diseño de celular.** No es la pantalla de escritorio encogida:
+
+- **Ventas:** la lista de resultados es corta, así el carrito y el total quedan
+  en la misma pantalla. Si el botón Cobrar se va de la vista, aparece abajo una
+  **barra fija** con los productos, el total y un botón para bajar a cobrar.
+- **Inventario y Compras:** las tablas se vuelven **tarjetas**, una por producto
+  o compra, con el nombre arriba y los botones a la derecha. Antes había que
+  arrastrar la tabla de lado y siempre quedaba algo cortado.
+- Los métodos de pago van en fila, no apilados; el buscador y su botón de
+  cámara caben en un solo renglón.
+
 **Detalles táctiles.**
 
 - Campos de 16px en celular: cómodos para el dedo y sin zoom automático.

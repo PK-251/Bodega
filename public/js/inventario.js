@@ -37,12 +37,12 @@ function cargarInventario() {
                 const stockClass = p.stock <= 0 ? 'agotado' : p.stock <= p.stock_minimo ? 'bajo' : 'ok';
                 return `
                     <tr>
-                        <td><code style="font-size:0.78rem">${p.codigo_barras || '—'}</code></td>
-                        <td><strong>${p.nombre}</strong></td>
-                        <td>${p.categoria}</td>
-                        <td>${formatMoney(p.precio_venta)}</td>
-                        <td><span class="prod-stock ${stockClass}">${p.stock} ${p.unidad}</span></td>
-                        <td>
+                        <td data-label="Código"><code style="font-size:0.78rem">${p.codigo_barras || '—'}</code></td>
+                        <td class="celda-titulo"><strong>${p.nombre}</strong></td>
+                        <td data-label="Categoría">${p.categoria}</td>
+                        <td data-label="Precio">${formatMoney(p.precio_venta)}</td>
+                        <td data-label="Stock"><span class="prod-stock ${stockClass}">${p.stock} ${p.unidad}</span></td>
+                        <td class="celda-acciones">
                             <div class="table-actions">
                                 <button class="btn-icon" onclick="editarProducto(${p.id})" title="Editar">✏️</button>
                                 <button class="btn-icon danger" onclick="desactivarProducto(${p.id}, '${p.nombre.replace(/'/g, "\\'")}')" title="Desactivar">🗑</button>

@@ -203,6 +203,8 @@ function renderVenta() {
 
     const total = calcularTotal();
     totalEl.textContent = formatMoney(total);
+
+    actualizarBarraCobro();
     actualizarVuelto();
     actualizarBotonCobrar();
 }
@@ -433,6 +435,38 @@ function mostrarRecibo(result) {
 
     document.getElementById('recibo-detalle').innerHTML = detalleHTML;
     abrirModal('modal-venta-ok');
+}
+
+// ─── Barra de cobro flotante (celular) ──────
+// El total y el botón Cobrar quedan fuera de pantalla
+// mientras se eligen productos: esta barra los acerca.
+
+const barraCobro = document.getElementById('barra-cobro');
+let cobrarALaVista = true;
+
+document.getElementById('barra-cobro-btn').addEventListener('click', () => {
+    document.querySelector('.venta-footer').scrollIntoView({ behavior: 'smooth', block: 'end' });
+});
+
+// Si el botón Cobrar ya se ve, la barra sobra
+if ('IntersectionObserver' in window) {
+    new IntersectionObserver((entradas) => {
+        cobrarALaVista = entradas[0].isIntersecting;
+        actualizarBarraCobro();
+    }, { threshold: 0.4 }).observe(document.getElementById('btn-cobrar'));
+}
+
+function actualizarBarraCobro() {
+    const unidades = ventaActual.reduce((s, i) => s + i.cantidad, 0);
+    const hayVenta = ventaActual.length > 0;
+
+    document.getElementById('barra-cobro-items').textContent =
+        `${unidades} ${unidades === 1 ? 'producto' : 'productos'}`;
+    document.getElementById('barra-cobro-total').textContent = formatMoney(calcularTotal());
+
+    const mostrar = hayVenta && !cobrarALaVista &&
+                    APP.currentSection === 'ventas' && esMobile();
+    barraCobro.classList.toggle('visible', mostrar);
 }
 
 // ─── Enviar el comprobante por WhatsApp ──────

@@ -52,16 +52,16 @@ function cargarCompras() {
 
             return `
                 <tr ${c.anulada ? 'style="opacity:0.55"' : ''}>
-                    <td>
+                    <td data-label="N°">
                         <code style="font-size:0.78rem">${c.numero}</code>
                         <div style="font-size:0.72rem; color:var(--text-muted)">${fecha}</div>
                     </td>
-                    <td><strong>${escaparHtml(c.proveedor)}</strong></td>
-                    <td style="font-size:0.8rem">${escaparHtml(doc)}</td>
-                    <td style="font-size:0.8rem">${c.items.length} prod. · ${formatCantidad(unidades)} und.</td>
-                    <td><strong>${formatMoney(c.total)}</strong></td>
-                    <td>${badgeEstadoCompra(c)}</td>
-                    <td>
+                    <td class="celda-titulo"><strong>${escaparHtml(c.proveedor)}</strong></td>
+                    <td data-label="Documento" style="font-size:0.8rem">${escaparHtml(doc)}</td>
+                    <td data-label="Ítems" style="font-size:0.8rem">${c.items.length} prod. · ${formatCantidad(unidades)} und.</td>
+                    <td data-label="Total"><strong>${formatMoney(c.total)}</strong></td>
+                    <td data-label="Estado">${badgeEstadoCompra(c)}</td>
+                    <td class="celda-acciones">
                         <div class="table-actions">
                             <button class="btn-icon" onclick="verDetalleCompra(${c.id})" title="Ver detalle">👁</button>
                             ${!c.pagada && !c.anulada

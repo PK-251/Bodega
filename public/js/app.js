@@ -71,6 +71,9 @@ function activarSeccion(nombre) {
     APP.currentSection = nombre;
 
     // Cargar datos al abrir sección
+    // La barra de cobro solo vive en ventas
+    if (typeof actualizarBarraCobro === 'function') actualizarBarraCobro();
+
     if (nombre === 'inventario') cargarInventario();
     if (nombre === 'compras') cargarCompras();
     if (nombre === 'caja') cargarEstadoCaja();
