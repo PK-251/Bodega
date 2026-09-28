@@ -487,6 +487,8 @@ function normalizarTelefono(valor) {
 }
 
 function textoComprobante(venta) {
+    const cfg = APP.config || DB.getConfig();
+
     const fecha = new Date(venta.fecha).toLocaleString('es-PE', {
         day: '2-digit', month: '2-digit', year: 'numeric',
         hour: '2-digit', minute: '2-digit'
@@ -496,12 +498,15 @@ function textoComprobante(venta) {
     const metodos = { EFECTIVO: 'Efectivo', YAPE_PLIN: 'Yape/Plin', TARJETA: 'Tarjeta' };
 
     // WhatsApp entiende *negrita* y los saltos de línea tal cual
-    const lineas = [
-        `*${APP.negocio}*`,
-        `${tipo} ${venta.numero_comprobante}`,
-        fecha,
-        ''
-    ];
+    const lineas = [`*${cfg.nombre}*`];
+
+    if (cfg.ruc) lineas.push(`RUC ${cfg.ruc}`);
+    if (cfg.direccion) lineas.push(cfg.direccion);
+
+    lineas.push('');
+    lineas.push(`${tipo} ${venta.numero_comprobante}`);
+    lineas.push(fecha);
+    lineas.push('');
 
     venta.items.forEach(i => {
         lineas.push(`${i.cantidad} x ${i.nombre} — ${formatMoney(i.precio_unitario * i.cantidad)}`);
@@ -518,6 +523,10 @@ function textoComprobante(venta) {
 
     lineas.push('');
     lineas.push('¡Gracias por su compra!');
+
+    if (cfg.telefono) {
+        lineas.push(`Pedidos: ${cfg.telefono}`);
+    }
 
     return lineas.join(String.fromCharCode(10));
 }

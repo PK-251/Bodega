@@ -8,9 +8,8 @@
 // ─── Estado Global ─────────────────────────────
 const APP = {
     BASE_URL: window.location.origin,
-    // Nombre que encabeza el comprobante enviado por WhatsApp.
-    // Cámbialo por el de tu bodega.
-    negocio: 'Mi Bodega',
+    // Datos del negocio (editables desde el botón ⚙️)
+    config: null,
     cajaAbierta: false,
     currentSection: 'ventas'
 };
@@ -228,6 +227,7 @@ window.addEventListener('resize', actualizarBotonesCamara);
 // ─── Inicialización ────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     DB.inicializarDemoSiVacio();
+    aplicarConfig();
     initNavigation();
     actualizarReloj();
     setInterval(actualizarReloj, 30000);

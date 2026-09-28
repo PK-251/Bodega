@@ -16,8 +16,9 @@
 <!-- ═══ HEADER ════════════════════════════════ -->
 <header class="app-header">
     <div class="app-logo">
-        <span class="logo-icon">🏪</span>
-        <span>Bodega POS</span>
+        <img class="logo-foto" id="app-logo-foto" alt="" style="display:none">
+        <span class="logo-icon" id="app-logo-emoji">🏪</span>
+        <span id="app-nombre">Mi Bodega</span>
     </div>
 
     <nav class="nav-tabs" id="nav-tabs">
@@ -44,6 +45,7 @@
             <span>●</span> Caja cerrada
         </span>
         <span class="header-clock" id="header-clock"></span>
+        <button class="btn-config" id="btn-config" title="Datos del negocio">⚙️</button>
     </div>
 </header>
 
@@ -344,6 +346,61 @@
 </main>
 
 <!-- ═══ MODALES ════════════════════════════════ -->
+
+<!-- Modal: Configuración del Negocio -->
+<div class="modal-overlay" id="modal-config">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>⚙️ Datos del Negocio</h3>
+            <button class="modal-close" onclick="cerrarModal('modal-config')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="cfg-foto-row">
+                <div class="cfg-foto-zona" id="cfg-foto-zona" title="Elegir foto">
+                    <img id="cfg-foto-preview" alt="Foto del negocio" style="display:none">
+                    <span id="cfg-foto-vacia">🏪</span>
+                </div>
+                <div class="cfg-foto-texto">
+                    <strong>Foto del negocio</strong>
+                    <p>Toca el círculo para elegirla. Se recorta y se achica sola.</p>
+                    <button type="button" class="btn btn-outline" id="btn-quitar-foto" style="display:none">
+                        Quitar foto
+                    </button>
+                    <input type="file" id="cfg-foto-input" accept="image/*" style="display:none">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre del Negocio *</label>
+                <input type="text" class="form-control" id="cfg-nombre" placeholder="Ej: Bodega Doña Rosa" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono / WhatsApp</label>
+                <input type="tel" class="form-control" id="cfg-telefono" placeholder="987 654 321" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>Dirección</label>
+                <input type="text" class="form-control" id="cfg-direccion" placeholder="Ej: Jr. Ayacucho 123, Huancayo" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label>RUC</label>
+                <input type="text" class="form-control" id="cfg-ruc" placeholder="10XXXXXXXXX" inputmode="numeric" autocomplete="off">
+            </div>
+
+            <p class="scanner-hint">
+                El nombre, el teléfono, la dirección y el RUC salen en el comprobante
+                que se manda por WhatsApp. La foto se ve solo dentro del sistema.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-outline" onclick="cerrarModal('modal-config')">Cancelar</button>
+            <button class="btn btn-primary" id="btn-guardar-config">Guardar</button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal: Producto (Crear/Editar) -->
 <div class="modal-overlay" id="modal-producto">
@@ -794,5 +851,6 @@
 <script src="js/inventario.js"></script>
 <script src="js/compras.js"></script>
 <script src="js/caja.js"></script>
+<script src="js/config.js"></script>
 </body>
 </html>

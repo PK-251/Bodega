@@ -116,6 +116,27 @@ de espera entre lecturas repetidas del mismo código.
 
 ---
 
+## ⚙️ Datos del Negocio
+
+El botón ⚙️ de la esquina superior derecha abre la configuración:
+
+| Dato | Dónde se usa |
+|---|---|
+| **Nombre** (obligatorio) | Encabezado del sistema y del comprobante de WhatsApp |
+| **Teléfono / WhatsApp** | Al pie del comprobante, como *"Pedidos: ..."* |
+| **Dirección** | Bajo el nombre en el comprobante |
+| **RUC** | Bajo el nombre en el comprobante |
+| **Foto** | Encabezado del sistema |
+
+La foto se recorta al centro y se reduce a 256px antes de guardarse: una foto
+de celular de 4 MB queda en unos pocos KB. El navegador reserva poco espacio
+para todo el sistema, y guardar el original lo llenaría.
+
+> Los datos viven en el navegador de esa PC o celular, igual que los productos
+> y las ventas. Si abres el sistema desde otro equipo, hay que configurarlos ahí.
+
+---
+
 ## 💬 Enviar el Comprobante por WhatsApp
 
 Al terminar una venta, el comprobante trae un campo para mandarlo al cliente.
@@ -123,19 +144,23 @@ Escribe el celular (9 dígitos, se le agrega el +51 solo) y **Enviar**: se abre
 WhatsApp con el mensaje ya escrito.
 
 ```
-*Mi Bodega*
-Ticket T001-2609-000001
-27/09/2026, 10:10 p. m.
+*Bodega Doña Rosa*
+RUC 10456789012
+Jr. Ayacucho 123, Huancayo
+
+Boleta de Venta B001-2609-000001
+27/09/2026, 10:16 p. m.
 
 1 x Inca Kola 500ml — S/ 3.00
-2 x Galletas Oreo Paq. — S/ 7.00
+1 x Galletas Oreo Paq. — S/ 3.50
 
-*TOTAL: S/ 10.00*
+*TOTAL: S/ 6.50*
 Pago: Efectivo
-Pagó con: S/ 20.00
-Vuelto: S/ 10.00
+Pagó con: S/ 10.00
+Vuelto: S/ 3.50
 
 ¡Gracias por su compra!
+Pedidos: 987 654 321
 ```
 
 Sin número, abre WhatsApp para que elijas el contacto de la lista.
@@ -148,8 +173,7 @@ Sin número, abre WhatsApp para que elijas el contacto de la lista.
 > Va como **texto**, no como PDF ni imagen: los enlaces de WhatsApp no
 > permiten adjuntar archivos.
 
-El nombre del negocio sale de `APP.negocio`, al inicio de `public/js/app.js`.
-Cámbialo por el de tu bodega.
+Los datos del encabezado salen de la configuración (botón ⚙️).
 
 ---
 
@@ -241,6 +265,7 @@ bodega-pos/
 │       ├── barcode.js       # Lector de código de barras
 │       ├── inventario.js    # Módulo de inventario
 │       ├── compras.js       # Módulo de compras a proveedores
+│       ├── config.js        # Datos del negocio (nombre, contacto, foto)
 │       └── caja.js          # Módulo de caja
 ├── scripts/
 │   └── generar-certificados.ps1  # Certificados HTTPS con mkcert

@@ -1482,6 +1482,15 @@ textarea.form-control {
         display: none;
     }
 
+    .cfg-foto-row {
+        gap: var(--space-md);
+    }
+
+    .cfg-foto-zona {
+        width: 70px;
+        height: 70px;
+    }
+
     .header-info .header-clock {
         display: none;
     }
@@ -1787,6 +1796,86 @@ textarea.form-control {
     .compra-total {
         font-size: 1.2rem;
     }
+}
+
+/* ─── Configuración del negocio ────────── */
+.logo-foto {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.btn-config {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+    line-height: 1;
+    padding: 6px;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+    flex-shrink: 0;
+}
+
+.btn-config:hover {
+    background: var(--bg);
+}
+
+.cfg-foto-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.cfg-foto-zona {
+    width: 86px;
+    height: 86px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: border-color var(--transition);
+}
+
+.cfg-foto-zona:hover {
+    border-color: var(--primary);
+}
+
+.cfg-foto-zona img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cfg-foto-texto {
+    flex: 1;
+    min-width: 0;
+}
+
+.cfg-foto-texto strong {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+.cfg-foto-texto p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.cfg-foto-texto .btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
 }
 
 /* ─── Enviar comprobante por WhatsApp ────── */

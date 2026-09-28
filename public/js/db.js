@@ -13,6 +13,7 @@ const DB = {
         ventas: 'bodega_ventas',
         movimientos: 'bodega_movimientos',
         compras: 'bodega_compras',
+        config: 'bodega_config',
         caja: 'bodega_caja_estado',
         secuencias: 'bodega_secuencias'
     },
@@ -44,6 +45,46 @@ const DB = {
         seqs[coleccion] = (seqs[coleccion] || 0) + 1;
         localStorage.setItem(this.KEYS.secuencias, JSON.stringify(seqs));
         return seqs[coleccion];
+    },
+
+    // ═══════════════════════════════════════════
+    //  CONFIGURACIÓN DEL NEGOCIO
+    // ═══════════════════════════════════════════
+
+    CONFIG_POR_DEFECTO: {
+        nombre: 'Mi Bodega',
+        telefono: '',
+        direccion: '',
+        ruc: '',
+        foto: null
+    },
+
+    getConfig() {
+        try {
+            const guardado = JSON.parse(localStorage.getItem(this.KEYS.config) || '{}');
+            return Object.assign({}, this.CONFIG_POR_DEFECTO, guardado);
+        } catch (e) {
+            return Object.assign({}, this.CONFIG_POR_DEFECTO);
+        }
+    },
+
+    guardarConfig(data) {
+        const actual = this.getConfig();
+        const nueva = Object.assign({}, actual, data);
+
+        if (!nueva.nombre || !nueva.nombre.trim()) {
+            throw new Error('El nombre del negocio es requerido');
+        }
+        nueva.nombre = nueva.nombre.trim();
+
+        try {
+            localStorage.setItem(this.KEYS.config, JSON.stringify(nueva));
+        } catch (e) {
+            // Casi siempre es la foto: el navegador limita el espacio
+            throw new Error('No se pudo guardar. Prueba con una foto más liviana.');
+        }
+
+        return nueva;
     },
 
     // ═══════════════════════════════════════════
