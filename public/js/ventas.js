@@ -467,6 +467,7 @@ function actualizarBarraCobro() {
     const mostrar = hayVenta && !cobrarALaVista &&
                     APP.currentSection === 'ventas' && esMobile();
     barraCobro.classList.toggle('visible', mostrar);
+    document.body.classList.toggle('con-barra-cobro', mostrar);
 }
 
 // ─── Enviar el comprobante por WhatsApp ──────

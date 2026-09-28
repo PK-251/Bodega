@@ -1314,9 +1314,11 @@ textarea.form-control {
 }
 
 /* ─── Notificaciones Toast ──────────────────── */
+/* Abajo: arriba tapaban el buscador y los botones
+   del encabezado justo cuando se estaba usando. */
 .toast-container {
     position: fixed;
-    top: calc(68px + env(safe-area-inset-top));
+    bottom: max(var(--space-lg), env(safe-area-inset-bottom));
     right: max(var(--space-lg), env(safe-area-inset-right));
     left: max(var(--space-lg), env(safe-area-inset-left));
     align-items: flex-end;
@@ -1325,6 +1327,21 @@ textarea.form-control {
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+    transition: bottom 200ms ease;
+}
+
+/* Con la barra de cobro a la vista, los avisos suben
+   para no quedar debajo de ella */
+body.con-barra-cobro .toast-container {
+    bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+/* En escritorio van a la izquierda: abajo a la derecha
+   está el botón Cobrar y lo tapaban al aparecer */
+@media (min-width: 901px) {
+    .toast-container {
+        align-items: flex-start;
+    }
 }
 
 .toast {
@@ -1333,16 +1350,16 @@ textarea.form-control {
     font-size: 0.85rem;
     font-weight: 500;
     box-shadow: var(--shadow-md);
-    animation: slideInRight 300ms ease;
+    animation: subirToast 260ms ease;
     display: flex;
     align-items: center;
     gap: var(--space-sm);
     max-width: 360px;
 }
 
-@keyframes slideInRight {
-    from { opacity: 0; transform: translateX(20px); }
-    to   { opacity: 1; transform: translateX(0); }
+@keyframes subirToast {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 .toast.success {
@@ -2224,6 +2241,17 @@ button,
     .venta-items {
         max-height: 40vh;
         max-height: 40dvh;
+    }
+}
+
+/* Avisos a todo el ancho en celular */
+@media (max-width: 600px) {
+    .toast-container {
+        align-items: stretch;
+    }
+
+    .toast {
+        max-width: none;
     }
 }
 

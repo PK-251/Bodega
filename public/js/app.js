@@ -89,7 +89,7 @@ function toast(message, type = 'info', duration = 3000) {
 
     setTimeout(() => {
         el.style.opacity = '0';
-        el.style.transform = 'translateX(20px)';
+        el.style.transform = 'translateY(12px)';
         el.style.transition = '300ms ease';
         setTimeout(() => el.remove(), 300);
     }, duration);

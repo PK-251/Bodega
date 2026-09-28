@@ -222,6 +222,8 @@ deslizan en horizontal con el dedo.
   arrastrar la tabla de lado y siempre quedaba algo cortado.
 - Los métodos de pago van en fila, no apilados; el buscador y su botón de
   cámara caben en un solo renglón.
+- Los avisos salen **abajo**: arriba tapaban el buscador justo al escribir.
+  Si la barra de cobro está a la vista, suben para no quedar debajo de ella.
 
 **Detalles táctiles.**
 
