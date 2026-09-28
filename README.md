@@ -39,8 +39,17 @@ El script lo encuentra aunque la terminal aún no tenga el PATH actualizado.
 ### Paso 2: Generar los certificados
 
 ```bash
-npm run cert
+.\cert.bat
 ```
+
+> **Por qué un `.bat` y no `npm run cert`:** Windows viene con la ejecución de
+> scripts de PowerShell deshabilitada, y `npm` en Windows *es* un script de
+> PowerShell, así que ni siquiera arranca (`UnauthorizedAccess`). El `.bat` lo
+> lanza igual sin cambiar nada del sistema. Si prefieres seguir con npm, usa
+> `npm.cmd run cert` — el `.cmd` no está bloqueado.
+>
+> Para habilitarlo de forma permanente (decisión tuya, es un ajuste de
+> seguridad): `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`
 
 El script detecta **todas** las IP reales de la PC (Wi-Fi y cable, descartando
 las virtuales de Docker y Hyper-V), genera un certificado válido para todas y
@@ -65,7 +74,7 @@ deja la autoridad lista en `server/ssl/bodega-CA.crt`.
 ### Paso 4: Usarlo
 
 ```bash
-npm run https
+npm.cmd run https
 ```
 
 Con el celular en la **misma red Wi-Fi**, abre `https://<IP-DE-TU-PC>:3443`
@@ -280,6 +289,7 @@ bodega-pos/
 │       ├── compras.js       # Módulo de compras a proveedores
 │       ├── config.js        # Datos del negocio (nombre, contacto, foto)
 │       └── caja.js          # Módulo de caja
+├── cert.bat                 # Genera los certificados (doble clic)
 ├── scripts/
 │   └── generar-certificados.ps1  # Certificados HTTPS con mkcert
 ├── data/                    # Base de datos local (auto-generado)
